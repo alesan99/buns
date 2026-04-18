@@ -1,22 +1,34 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useFlipTo } from "./JournalShell";
+import { useFlipTo, useIsFlipping } from "./JournalShell";
 
 export function BunnyPanel() {
   const flipTo = useFlipTo();
   const pathname = usePathname();
   const onGame = pathname === "/game";
+  const isFlipping = useIsFlipping();
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
-      {/* Cut-out hole in the page — bunny peeking through to another layer. */}
+    <div
+      className={[
+        "flex h-full w-full flex-col items-center justify-center gap-6 p-6",
+        onGame || isFlipping ? "bg-honey-tint" : "bg-card",
+      ].join(" ")}
+    >
+      {/* Cut-out hole on the todo page — bunny peeks through to a honey layer.
+          On /game the page itself IS that honey layer, so the inset shadow is
+          dropped and the bunny sits flat on the spread. */}
       <div
-        className="relative flex aspect-square w-72 items-center justify-center rounded-2xl bg-honey-tint md:w-80 lg:w-96"
-        style={{
-          boxShadow:
-            "inset 0 12px 28px rgba(61, 53, 43, 0.35), inset 0 -6px 18px rgba(255, 253, 246, 0.4)",
-        }}
+        className="relative flex aspect-square w-72 items-center justify-center rounded-2xl md:w-80 lg:w-96 bg-honey-tint"
+        style={
+          onGame || isFlipping
+            ? undefined
+            : {
+                boxShadow:
+                  "inset 0 12px 28px rgba(61, 53, 43, 0.35), inset 0 -6px 18px rgba(255, 253, 246, 0.4)",
+              }
+        }
       >
         <span
           className="text-[160px] leading-none md:text-[180px] lg:text-[200px]"
