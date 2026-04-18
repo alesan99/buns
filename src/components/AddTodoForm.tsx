@@ -20,6 +20,7 @@ const FORM_DAYS = 7;
 
 export function AddTodoForm({ onClose }: Props) {
   const addTodo = useTodos((s) => s.addTodo);
+  const setSelectedDate = useTodos((s) => s.setSelectedDate);
   const selectedDate = useTodos((s) => s.selectedDate);
 
   const [title, setTitle] = useState("");
@@ -47,6 +48,8 @@ export function AddTodoForm({ onClose }: Props) {
       dueTime: allDay ? undefined : time || undefined,
       notes: notes || undefined,
     });
+    // Jump to the day we just added to, so the user always sees their new item.
+    setSelectedDate(day);
     onClose();
   }
 
