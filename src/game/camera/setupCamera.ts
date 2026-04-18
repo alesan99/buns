@@ -15,6 +15,8 @@ export function setupCamera(
     Math.min(Math.max(value, min), max);
   const lerp = (start: number, end: number, amount: number) =>
     start + (end - start) * amount;
+  const startY = targetObject.y;
+  let autoScrollStarted = false;
 
   const applyViewportAndZoom = () => {
     camera.setViewport(0, 0, scene.scale.width, scene.scale.height);
@@ -27,12 +29,29 @@ export function setupCamera(
     const zoom = camera.zoom || 1;
     const visibleWorldWidth = camera.width / zoom;
     const visibleWorldHeight = camera.height / zoom;
+    const dt = scene.game.loop.delta / 1000;
 
     camera.scrollX = targetObject.x - visibleWorldWidth / 2;
 
+    if (!autoScrollStarted && targetObject.y < startY - 2) {
+      autoScrollStarted = true;
+    }
+
+    if (autoScrollStarted) {
+      const climbProgress = clamp(1 - targetObject.y / Math.max(1, worldHeight), 0, 1);
+      const baseAutoScrollSpeed = tileSize * 0.60;
+      const maxExtraAutoScrollSpeed = tileSize * 0.18;
+      const maxAutoScrollSpeed = tileSize * 3;
+      const autoScrollSpeed = Math.min(
+        baseAutoScrollSpeed + maxExtraAutoScrollSpeed * climbProgress,
+        maxAutoScrollSpeed,
+      );
+      camera.scrollY -= autoScrollSpeed * dt;
+    }
+
     const desiredScrollY = targetObject.y - visibleWorldHeight / 2;
     if (desiredScrollY < camera.scrollY) {
-      camera.scrollY = lerp(camera.scrollY, desiredScrollY, 0.04);
+      camera.scrollY = lerp(camera.scrollY, desiredScrollY, 0.08);
     }
 
     camera.scrollX = clamp(camera.scrollX, 0, Math.max(0, worldWidth - visibleWorldWidth));
