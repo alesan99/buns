@@ -1,3 +1,4 @@
+import { BunnyPanel } from "@/components/BunnyPanel";
 import { TodoList } from "@/components/TodoList";
 
 export default function Home() {
@@ -42,15 +43,8 @@ export default function Home() {
           />
 
           {/* Right page — bunny game */}
-          <section className="relative order-last flex h-20 min-w-0 items-center justify-center bg-gradient-to-br from-sage-tint to-cream md:order-none md:h-auto md:flex-1">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-3xl" aria-hidden>
-                🐰
-              </span>
-              <span className="text-xs font-semibold text-ink-muted md:text-sm">
-                Your bunny lives here
-              </span>
-            </div>
+          <section className="relative order-last flex min-h-[300px] min-w-0 bg-card md:order-none md:min-h-0 md:flex-1">
+            <BunnyPanel />
           </section>
         </div>
       </div>
