@@ -25,8 +25,8 @@ function valueNoise(x: number, seed: number): number {
 function fbm(
   x: number,
   seed: number,
-  octaves = 4,
-  lacunarity = 2.5,
+  octaves = 3,
+  lacunarity = 2,
   gain = 0.5,
 ): number {
   let value = 0;
@@ -74,32 +74,25 @@ export function populateLevelLayoutRandom(
 
   // ── Tuning ────────────────────────────────────────────────────────────────
 
-  // Horizontal spread
-  const hSigmaBottom = width * 0.1;
-  const hSigmaTop    = width * 0.04;
+  const hSigmaBottom = width * 0.09;
+  const hSigmaTop    = width * 0.05;
 
-  // Solid threshold
-  const hThresholdBottom = 0.25;
+  const hThresholdBottom = 0.35;
   const hThresholdTop    = 0.55;
 
-  // Vertical thickness: the per-pass cap. Per-column thickness is additionally
-  // scaled by hWeight so edges are thinner than the center, giving a round profile.
   const maxThicknessBottom = 4;
   const maxThicknessTop    = 1;
 
-  // vSigma: larger = softer underside taper, rounder belly on thick platforms.
-  const vSigmaBottom = 3.5;
-  const vSigmaTop    = 1.2;
+  const vSigmaBottom = 5;
+  const vSigmaTop    = 2;
 
   const collectibleChance = 0.45;
 
-  // Warp amplitude: subtle at the floor, aggressive at the top.
-  const warpAmpBottom = 1;
-  const warpAmpTop    = 3;
+  const warpAmpBottom = 4;
+  const warpAmpTop    = 5;
 
-  // Warp noise frequency: smooth at the bottom, detailed at the top.
-  const warpFreqBottom = 0.5;
-  const warpFreqTop    = 1.8;
+  const warpFreqBottom = 0.2;
+  const warpFreqTop    = 1;
 
   const topOccupiedRow = new Array(width).fill(floorRow);
 
@@ -130,7 +123,7 @@ export function populateLevelLayoutRandom(
     const hSigma         = lerp(hSigmaBottom,         hSigmaTop,         heightT);
     const hThreshold     = lerp(hThresholdBottom,     hThresholdTop,     heightT);
     const maxThickness   = Math.round(lerp(maxThicknessBottom, maxThicknessTop, heightT));
-    const vSigma         = lerp(vSigmaBottom,         vSigmaTop,         heightT);
+    const vSigma         = lerp(vSigmaBottom, vSigmaTop,         heightT);
     const surfaceWarpAmp = lerp(warpAmpBottom,         warpAmpTop,        heightT);
     const warpFreq       = lerp(warpFreqBottom,        warpFreqTop,       heightT);
 
@@ -141,11 +134,12 @@ export function populateLevelLayoutRandom(
       const hWeight = gaussian(col - centerCol, hSigma);
       if (hWeight < hThreshold) continue;
 
-      // Scale thickness by horizontal weight: center columns get the full
-      // budget, edge columns get proportionally fewer depth layers.
-      // This produces a rounded cross-section instead of a flat-bottomed rectangle.
-      const colThickness = Math.max(1, Math.round(maxThickness * hWeight));
-
+      const thicknessCurve = Math.pow(hWeight, 0.5); 
+      const centerBias = Math.pow(hWeight, 1.5); // sharper peak
+      const colThickness = Math.max(
+      1,
+      Math.round(maxThickness * thicknessCurve + maxThickness * 0.3 * centerBias)
+      );
       const warpNoise = fbm(col * warpFreq, seed + passIndex * 17);
       const warpOffset = Math.round((warpNoise - 0.5) * 2 * surfaceWarpAmp);
       const surfaceRow = row + warpOffset;
@@ -155,7 +149,7 @@ export function populateLevelLayoutRandom(
         if (tileRow >= floorRow || tileRow < 1) continue;
 
         const vWeight = gaussian(depth, vSigma);
-        if (vWeight < 0.5) continue;
+        if (vWeight < 0.2) continue;
 
         // ── Gap enforcement ──────────────────────────────────────────────
         if (tileRow >= topOccupiedRow[col] - 1) continue;
