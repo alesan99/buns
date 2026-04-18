@@ -11,10 +11,23 @@ import { TiledWorld } from "@/game/world/TiledWorld";
 import { createPrimitiveTextures } from "@/game/world/createPrimitiveTextures";
 import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRandom";
 
-export function createPlatformerScene(Phaser: typeof import("phaser")) {
+export function createPlatformerScene(
+  Phaser: typeof import("phaser"),
+  onDeath?: () => void,
+) {
   let player: Player;
   let world: TiledWorld;
   let background: Phaser.GameObjects.Image | undefined;
+  let updateCamera: (() => void) | undefined;
+  let hasDied = false;
+  let deathChecksArmed = false;
+  let initialCameraScrollY = 0;
+
+  const triggerDeath = () => {
+    if (hasDied) return;
+    hasDied = true;
+    onDeath?.();
+  };
 
   const resizeBackground = (scene: Phaser.Scene) => {
     if (!background) return;
@@ -97,7 +110,7 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         },
       );
 
-      setupCamera(
+      updateCamera = setupCamera(
         this,
         player.sprite,
         world.worldWidthPx,
@@ -105,6 +118,7 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         TILE_SIZE,
         CAMERA_VISIBLE_TILES_ACROSS,
       );
+      initialCameraScrollY = this.cameras.main.scrollY;
 
       // Re-apply after camera zoom is configured.
       resizeBackground(this);
@@ -119,6 +133,22 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
     },
     update(this: Phaser.Scene) {
       player?.update();
+      updateCamera?.();
+
+      if (!deathChecksArmed) {
+        deathChecksArmed =
+          this.cameras.main.scrollY < initialCameraScrollY - TILE_SIZE;
+      }
+
+      if (player && world && !hasDied) {
+        const body = player.sprite.body as Phaser.Physics.Arcade.Body | null;
+        const cameraBottom = this.cameras.main.worldView.bottom;
+        if (deathChecksArmed && body && body.top > cameraBottom) {
+          triggerDeath();
+          return;
+        }
+      }
+
       world?.updateTileVisibility(this.cameras.main);
     },
   };
