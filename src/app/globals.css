@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Bunny Bulletin palette — hand-picked, earthy, androgynous.
+ * Each color is a SPECIFIC hex (no algorithmic 50/100/300/500/700 scales).
+ * Three deliberate tones per color: tint (soft bg), base (the color), deep (ink/border).
+ *
+ * To re-skin: edit the hex values in this file. Components reference semantic
+ * names (bg-primary, bg-overdue, etc.), so swapping a single var re-themes the app.
+ */
+
+@theme {
+  /* Sage — primary brand. Calm, gardeny, gender-neutral. */
+  --color-sage:       #8aaa88;
+  --color-sage-tint:  #e2ebdf;
+  --color-sage-deep:  #4f6c4d;
+
+  /* Moss — completed / done. Deeper green than sage. */
+  --color-moss:       #6b8f61;
+  --color-moss-tint:  #dde7d5;
+  --color-moss-deep:  #3a5234;
+
+  /* Clay — overdue / warning. Warm terracotta, not alarming red. */
+  --color-clay:       #c97a4f;
+  --color-clay-tint:  #f2dbcc;
+  --color-clay-deep:  #8a4a25;
+
+  /* Dusk — pending / info. Dusty muted blue. */
+  --color-dusk:       #708baf;
+  --color-dusk-tint:  #dde5ee;
+  --color-dusk-deep:  #43597b;
+
+  /* Honey — accent / celebration. Warm amber. */
+  --color-honey:      #d6a24e;
+  --color-honey-tint: #f1e1be;
+  --color-honey-deep: #7c5915;
+
+  /* Surfaces — warm, not white. */
+  --color-oat:        #f4ecdd;   /* app background */
+  --color-cream:      #fbf6ec;   /* card surface */
+  --color-paper:      #fffdf6;   /* lifted surface (popovers, inputs) */
+
+  /* Text + dividers — warm earth tones. */
+  --color-walnut:     #3d352b;   /* primary ink */
+  --color-stone:      #7e7368;   /* muted ink */
+  --color-hairline:   #e2d8c2;   /* borders */
 }
 
+/* Semantic aliases — point at palette vars.
+   Components prefer these names so a single swap re-themes everything. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface:      var(--color-oat);
+  --color-card:         var(--color-cream);
+  --color-primary:      var(--color-sage);
+  --color-primary-soft: var(--color-sage-tint);
+  --color-primary-ink:  var(--color-sage-deep);
+  --color-done:         var(--color-moss);
+  --color-done-soft:    var(--color-moss-tint);
+  --color-done-ink:     var(--color-moss-deep);
+  --color-overdue:      var(--color-clay);
+  --color-overdue-soft: var(--color-clay-tint);
+  --color-overdue-ink:  var(--color-clay-deep);
+  --color-pending:      var(--color-dusk);
+  --color-pending-soft: var(--color-dusk-tint);
+  --color-pending-ink:  var(--color-dusk-deep);
+  --color-accent:       var(--color-honey);
+  --color-ink:          var(--color-walnut);
+  --color-ink-muted:    var(--color-stone);
+  --color-divider:      var(--color-hairline);
+  --font-sans:          var(--font-geist-sans);
+  --font-mono:          var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Tiny bounce for the check-off moment. */
+@keyframes bunny-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.96); }
+  70%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+.bunny-pop { animation: bunny-pop 260ms ease-out; }
+
+/* Day strip — hide scrollbar, keep snap. */
+.day-strip { scrollbar-width: none; }
+.day-strip::-webkit-scrollbar { display: none; }

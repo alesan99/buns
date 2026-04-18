@@ -1,16 +1,24 @@
+import { TodoList } from "@/components/TodoList";
+
 export default function Home() {
   return (
-    <main className="flex flex-1 w-full">
-      {/* Left page — TodoList goes here (frontend). */}
-      <section className="flex-1 border-r border-zinc-200 p-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold">Bunny Bulletin</h1>
-        <p className="mt-2 text-sm text-zinc-500">TodoList mounts here.</p>
+    <main className="flex min-h-screen w-full flex-col md:flex-row">
+      {/* Left page — Todo list (frontend). */}
+      <section className="flex-1 border-b border-hairline md:border-b-0 md:border-r">
+        <TodoList />
       </section>
 
-      {/* Right page — GameStage / bunny canvas (game dev). */}
-      <section className="flex-1 p-8">
-        <h2 className="text-2xl font-semibold">Your Bunny</h2>
-        <p className="mt-2 text-sm text-zinc-500">GameStage mounts here.</p>
+      {/* Right page — GameStage / bunny (game dev).
+          On mobile, collapses to a small "bunny peek" strip. */}
+      <section className="order-last flex h-20 items-center justify-center bg-bunny-50 md:order-none md:h-auto md:flex-1">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-3xl" aria-hidden>
+            🐰
+          </span>
+          <span className="text-xs font-semibold text-ink-muted md:text-sm">
+            Your bunny lives here
+          </span>
+        </div>
       </section>
     </main>
   );
