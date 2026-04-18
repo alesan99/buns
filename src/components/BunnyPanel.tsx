@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
+import { ScrapbookNotes } from "./ScrapbookNotes";
 
 export function BunnyPanel() {
   const flipTo = useFlipTo();
@@ -9,16 +11,39 @@ export function BunnyPanel() {
   const onGame = pathname === "/game";
   const isFlipping = useIsFlipping();
 
+  const [notesShown, setNotesShown] = useState(true);
+
+  useEffect(() => {
+    if (pathname === "/" && !isFlipping) setNotesShown(true);
+    else if (pathname === "/" && isFlipping) setNotesShown(false);
+  }, [pathname, isFlipping]);
+
   return (
     <div
       className={[
-        "flex h-full w-full flex-col items-center justify-center gap-6 p-6",
+        "relative flex h-full w-full flex-col items-center justify-center gap-6 p-6",
         onGame || isFlipping ? "bg-honey-tint" : "bg-card",
       ].join(" ")}
     >
-      {/* Cut-out hole on the todo page — bunny peeks through to a honey layer.
-          On /game the page itself IS that honey layer, so the inset shadow is
-          dropped and the bunny sits flat on the spread. */}
+      {/* Play Game button — top-right corner, outside flex flow */}
+      <button
+        onClick={() => flipTo("/game")}
+        disabled={onGame || !!isFlipping}
+        className="absolute rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97] disabled:invisible"
+        style={{ top: "1.5rem", right: "1.5rem" }}
+      >
+        Play Game →
+      </button>
+
+      {/*
+       * Top spacer — counterbalances the ScrapbookNotes block below the cutout
+       * so that the bunny cutout lands at the same vertical position as in the
+       * original design (cutout + label + button group, centered).
+       * Height ≈ extra height added by the notes vs the original label+button.
+       */}
+      <div aria-hidden className="h-20 shrink-0" />
+
+      {/* Bunny cutout — inset shadow on todo page, flat on game page */}
       <div
         className="relative flex aspect-square w-72 items-center justify-center rounded-2xl md:w-80 lg:w-96 bg-honey-tint"
         style={
@@ -40,28 +65,8 @@ export function BunnyPanel() {
         </span>
       </div>
 
-      {/* Washi tape — slight tilt, semi-transparent, handwritten name. */}
-      <div
-        className="relative -rotate-3 bg-clay-tint/85 px-10 py-1 shadow-sm"
-        style={{ clipPath: "polygon(3% 8%, 97% 2%, 99% 92%, 2% 96%)" }}
-      >
-        <span
-          className="text-3xl font-bold text-ink"
-          style={{ fontFamily: "var(--font-caveat), cursive" }}
-        >
-          Anya
-        </span>
-      </div>
-
-      <button
-        onClick={() => flipTo("/game")}
-        className={[
-          "mt-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97]",
-          onGame ? "invisible" : "",
-        ].join(" ")}
-      >
-        Play Game →
-      </button>
+      {/* Anya label + scrapbook notes — in flex flow so they never overlap Anya */}
+      <ScrapbookNotes shown={notesShown && !onGame} />
     </div>
   );
 }
