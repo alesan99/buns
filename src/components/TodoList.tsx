@@ -35,7 +35,7 @@ export function TodoList() {
   const done = dayTodos.filter((t) => t.completed).sort(sortByTime);
 
 // Apply active filter to displayed groups
-  const visibleOverdue = activeFilter === null || activeFilter === "overdue" ? allOverdue : [];
+  const visibleOverdue = activeFilter === null || activeFilter === "overdue" || activeFilter === "left" ? allOverdue : [];
   const visiblePending = activeFilter === null || activeFilter === "left" ? pending : [];
   const visibleDone = activeFilter === null || activeFilter === "done" ? done : [];
 
