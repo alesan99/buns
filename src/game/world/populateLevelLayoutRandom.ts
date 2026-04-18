@@ -86,7 +86,7 @@ export function populateLevelLayoutRandom(
   const vSigmaBottom = 5;
   const vSigmaTop    = 2;
 
-  const collectibleChance = 0.45;
+  const collectibleChance = 0.4;
 
   const warpAmpBottom = 4;
   const warpAmpTop    = 5;
@@ -121,7 +121,11 @@ export function populateLevelLayoutRandom(
 
     // All per-pass parameters scale with heightT.
     const hSigma         = lerp(hSigmaBottom,         hSigmaTop,         heightT);
-    const hThreshold     = lerp(hThresholdBottom,     hThresholdTop,     heightT);
+    const hThreshold = lerp(
+      hThresholdBottom,
+      hThresholdTop - 0.05, // allow more columns at top
+      heightT
+    );
     const maxThickness   = Math.round(lerp(maxThicknessBottom, maxThicknessTop, heightT));
     const vSigma         = lerp(vSigmaBottom, vSigmaTop,         heightT);
     const surfaceWarpAmp = lerp(warpAmpBottom,         warpAmpTop,        heightT);
@@ -176,7 +180,8 @@ export function populateLevelLayoutRandom(
 
     // ── Vertical step ─────────────────────────────────────────────────────
     const stepNoise = fbm(noiseX + 99, seed);
-    const step = 2 + Math.round(stepNoise * 2);
+    const topDensityBoost = lerp(1.2, 0.4, heightT);
+    const step = Math.max(1, Math.round((2 + stepNoise * 2) * topDensityBoost));
     row -= step;
     passIndex += 1;
   }
