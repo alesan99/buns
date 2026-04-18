@@ -137,7 +137,7 @@ body {
   animation: flip-back-reveal 520ms ease-out forwards;
 }
 .journal-page-content {
-  animation: page-content-fade 380ms ease-out forwards;
+  animation: page-content-fade 380ms ease-out;
 }
 
 /* Lined paper — faint horizontal rules like a notebook page. */

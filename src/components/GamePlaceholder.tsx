@@ -1,13 +1,14 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { useFlipTo } from "./JournalShell";
+import { useFlipTo, useIsFlipping } from "./JournalShell";
 
 export function GamePlaceholder() {
   const flipTo = useFlipTo();
+  const isFlipping = useIsFlipping();
 
   return (
-    <div className="flex h-full flex-col bg-honey-tint">
+    <div className={`flex h-full flex-col ${isFlipping ? "bg-card" : "bg-honey-tint"}`}>
       <header className="flex items-center justify-start px-4 pt-4 md:px-6 md:pt-6">
         <button
           onClick={() => flipTo("/")}
@@ -18,7 +19,7 @@ export function GamePlaceholder() {
         </button>
       </header>
 
-      <div className="journal-page-content flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-12">
+      <div className={`journal-page-content flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-12 transition-opacity duration-200 ${isFlipping ? "opacity-0" : ""}`}>
         <p className="text-6xl" aria-hidden>
           🎮
         </p>
