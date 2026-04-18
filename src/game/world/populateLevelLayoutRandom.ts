@@ -159,8 +159,9 @@ export function populateLevelLayoutRandom(
 
         // ── Gap enforcement ──────────────────────────────────────────────
         if (tileRow >= topOccupiedRow[col] - 1) continue;
-
-        layout.setTile(tileRow, col, TILE_SOLID);
+        
+        const tile = randInt(rng, 1, 3);
+        layout.setTile(tileRow, col, tile);
 
         if (tileRow < topOccupiedRow[col]) {
           topOccupiedRow[col] = tileRow;
