@@ -169,14 +169,14 @@ body {
     0 32px 64px -16px rgba(61, 53, 43, 0.35);
 }
 
-/* Pseudo page layers — clearly visible so the stack pops against the bg */
+/* Pseudo page layers — soft warm tones, clearly pages but not distracting */
 .page-layer-near {
-  background: #ecd8c8;
-  box-shadow: 0 8px 18px -6px rgba(58, 46, 36, 0.3);
+  background: #f2e0d4;
+  box-shadow: 0 6px 16px -6px rgba(58, 46, 36, 0.18);
 }
 .page-layer-far {
-  background: #d9b8a4;
-  box-shadow: 0 12px 24px -8px rgba(58, 46, 36, 0.35);
+  background: #e6cfc0;
+  box-shadow: 0 10px 20px -8px rgba(58, 46, 36, 0.22);
 }
 
 .journal-crease {
