@@ -252,14 +252,12 @@ export function BunnyPanel() {
               }
         }
       >
-        <span
-          className="text-[160px] leading-none md:text-[180px] lg:text-[200px]"
-          role="img"
-          aria-label="Bunny"
-          style={{ filter: "drop-shadow(0 4px 8px rgba(61, 53, 43, 0.3))" }}
-        >
-          🐰
-        </span>
+        <img
+          src="/bunny.png"
+          alt="Bunny"
+          className="w-48 md:w-56 lg:w-64"
+          style={{}}
+        />
       </div>
 
       {/* Anya label + scrapbook notes — in flex flow so they never overlap Anya */}
