@@ -120,12 +120,15 @@ export function AddTodoForm({ onClose, todo }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-walnut/30 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
+      {/* Rounded blur overlay — pointer-events-none so clicks reach the outer close handler */}
+      <div className="pointer-events-none absolute inset-0 m-3 rounded-3xl bg-walnut/30 backdrop-blur-sm" />
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-3xl bg-paper p-5 shadow-2xl ring-1 ring-divider"
+        className="relative z-10 w-full max-w-md rounded-3xl bg-paper p-5 shadow-2xl ring-1 ring-divider"
       >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
@@ -277,18 +280,26 @@ export function AddTodoForm({ onClose, todo }: Props) {
                   className="rounded p-0.5 text-ink-muted transition hover:bg-sage-tint"
                   aria-label="Increase hour"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                  <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
                 </button>
-                <span className="w-8 text-center text-xl font-bold text-ink">
-                  {String(hour).padStart(2, "0")}
-                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={String(hour).padStart(2, "0")}
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value, 10);
+                    if (!isNaN(n) && n >= 1 && n <= 12) setHour(n);
+                  }}
+                  onFocus={(e) => e.target.select()}
+                  className="w-10 rounded-lg border-0 bg-transparent text-center text-xl font-bold text-ink focus:bg-sage-tint focus:outline-none"
+                />
                 <button
                   type="button"
                   onClick={() => setHour((h) => (h === 1 ? 12 : h - 1))}
                   className="rounded p-0.5 text-ink-muted transition hover:bg-sage-tint"
                   aria-label="Decrease hour"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                  <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
                 </button>
               </div>
 
@@ -302,18 +313,26 @@ export function AddTodoForm({ onClose, todo }: Props) {
                   className="rounded p-0.5 text-ink-muted transition hover:bg-sage-tint"
                   aria-label="Increase minute"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
+                  <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
                 </button>
-                <span className="w-8 text-center text-xl font-bold text-ink">
-                  {String(minute).padStart(2, "0")}
-                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={String(minute).padStart(2, "0")}
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value, 10);
+                    if (!isNaN(n) && n >= 0 && n <= 59) setMinute(n);
+                  }}
+                  onFocus={(e) => e.target.select()}
+                  className="w-10 rounded-lg border-0 bg-transparent text-center text-xl font-bold text-ink focus:bg-sage-tint focus:outline-none"
+                />
                 <button
                   type="button"
                   onClick={() => setMinute((m) => prevMin(m))}
                   className="rounded p-0.5 text-ink-muted transition hover:bg-sage-tint"
                   aria-label="Decrease minute"
                 >
-                  <ChevronLeft className="h-3.5 w-3.5 rotate-90" />
+                  <ChevronLeft className="h-3.5 w-3.5 -rotate-90" />
                 </button>
               </div>
 
