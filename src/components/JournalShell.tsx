@@ -46,7 +46,7 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
   return (
     <FlipStateContext.Provider value={!!flipping}>
       <FlipContext.Provider value={flipTo}>
-        <main className="flex min-h-screen justify-center bg-surface p-5 md:p-7 lg:p-10">
+        <main className="flex min-h-screen justify-center bg-surface px-5 py-3 md:px-7 md:py-4 lg:px-10 lg:py-5">
           <div className="relative w-full max-w-[1440px]">
             {/* Stacked pages behind — left side */}
             <div
@@ -74,7 +74,7 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
 
             {/* Front journal */}
             <div
-              className="journal-front relative flex min-h-[calc(100vh-2.5rem)] flex-col rounded-3xl bg-card md:min-h-[calc(100vh-3.5rem)] md:flex-row lg:min-h-[calc(100vh-5rem)]"
+              className="journal-front relative flex min-h-[calc(100vh-1.5rem)] flex-col rounded-3xl bg-card md:min-h-[calc(100vh-2rem)] md:flex-row lg:min-h-[calc(100vh-2.5rem)]"
               style={{ perspective: "2000px" }}
             >
               {/* Honey-tint underlayer — revealed behind the right page as it
@@ -142,8 +142,6 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                         />
                         {/* Ghost washi tape — invisible, keeps layout aligned with BunnyPanel */}
                         <div className="h-9 w-44 flex-shrink-0 opacity-0" />
-                        {/* Ghost button */}
-                        <div className="mt-2 h-10 w-28 flex-shrink-0 opacity-0" />
                       </div>
                     </div>
                   )}
@@ -158,7 +156,6 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                           style={{ boxShadow: "0 0 0 2000px transparent" }}
                         />
                         <div className="h-9 w-44 flex-shrink-0 opacity-0" />
-                        <div className="mt-2 h-10 w-28 flex-shrink-0 opacity-0" />
                       </div>
                     </div>
                   )}

@@ -35,6 +35,11 @@
   --color-honey-tint: #f5e8cc;
   --color-honey-deep: #7a5820;
 
+  /* Butter — caffeine note washi tape. Warm pale yellow. */
+  --color-butter:      #F5D99E;
+  --color-butter-tint: #FDF3DC;
+  --color-butter-deep: #B8861A;
+
   /* Surfaces — linen warmth, not stark white. */
   --color-oat:        #f4ece4;   /* app background */
   --color-cream:      #fdf8f2;   /* card surface */
