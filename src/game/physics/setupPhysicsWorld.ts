@@ -5,6 +5,6 @@ export function setupPhysicsWorld(
   worldWidth: number,
   worldHeight: number,
 ) {
-  scene.physics.world.gravity.y = 1600;
+  scene.physics.world.gravity.y = 2400;
   scene.physics.world.setBounds(0, 0, worldWidth, worldHeight);
 }

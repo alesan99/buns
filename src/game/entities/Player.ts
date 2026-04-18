@@ -5,7 +5,8 @@ export class Player {
   private readonly visual: Phaser.GameObjects.Sprite;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly speed = 260;
-  private readonly jumpVelocity = -1000;
+  private readonly jumpVelocity = -1230;
+  private readonly jumpCutVelocity = -350;
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;
   private walkBobTime = 0;
@@ -43,7 +44,7 @@ export class Player {
 
     const left = this.cursors.left?.isDown;
     const right = this.cursors.right?.isDown;
-    const jumpPressed = this.cursors.up?.isDown || this.cursors.space?.isDown;
+    const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown;
 
     if (left) {
       this.sprite.setVelocityX(-this.speed);
@@ -58,8 +59,12 @@ export class Player {
     const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
     const isGrounded = body?.blocked?.down ?? false;
 
-    if (jumpPressed && isGrounded) {
+    if (jumpHeld && isGrounded) {
       this.sprite.setVelocityY(this.jumpVelocity);
+    }
+
+    if (!jumpHeld && !isGrounded && body && body.velocity.y < 0) {
+      this.sprite.setVelocityY(Math.max(body.velocity.y, this.jumpCutVelocity));
     }
 
     // Animation state machine: jump while airborne, run while moving on ground, stand otherwise.
