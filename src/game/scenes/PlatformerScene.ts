@@ -48,7 +48,10 @@ export function createPlatformerScene(
     key: "PlatformerScene",
     preload(this: Phaser.Scene) {
       this.load.image("background", "/background.png");
-      this.load.image("coffee", "/coffee.png");
+      this.load.spritesheet("coffee", "/coffee.png", {
+        frameWidth: 64,
+        frameHeight: 64,
+      });
       this.load.spritesheet("tiles", "/tiles.png", {
         frameWidth: 64,
         frameHeight: 64,
@@ -83,6 +86,15 @@ export function createPlatformerScene(
           key: "bun-jump",
           frames: [{ key: "bun", frame: 1 }],
           frameRate: 10,
+          repeat: -1,
+        });
+      }
+
+      if (!this.anims.exists("coffee-idle")) {
+        this.anims.create({
+          key: "coffee-idle",
+          frames: this.anims.generateFrameNumbers("coffee", { start: 0, end: 1 }),
+          frameRate: 5,
           repeat: -1,
         });
       }

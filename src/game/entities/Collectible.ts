@@ -17,7 +17,8 @@ export class Collectible {
     }
 
     this.visual = scene.add.sprite(x, y, "coffee");
-	this.visual.setDepth(2);
+    this.visual.setDepth(2);
+    this.visual.play("coffee-idle");
 
     scene.tweens.add({
       targets: this.visual,
