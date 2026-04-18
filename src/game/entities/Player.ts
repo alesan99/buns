@@ -21,6 +21,7 @@ export class Player {
     this.visual = scene.add.sprite(x, y, "bun", 0);
     this.visual.setOrigin(0.5, 0.5);
     this.visual.setScale(0.20);
+	this.visual.setDepth(2);
     this.visual.play("bun-stand");
     this.syncVisual(0);
 
