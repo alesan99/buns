@@ -3,7 +3,7 @@ import {
   type LevelGrid,
   OBJECT_COLLECTIBLE,
   OBJECT_SPAWN,
-  TILE_SOLID,
+  TILE_EMPTY,
 } from "@/game/config";
 import { Collectible } from "@/game/entities/Collectible";
 import { TileObject } from "@/game/entities/TileObject";
@@ -40,10 +40,10 @@ export class TiledWorld {
         const x = col * this.tileSize + this.tileSize / 2;
         const y = row * this.tileSize + this.tileSize / 2;
 
-        if (tile === TILE_SOLID) {
-          const tile = new TileObject(this.scene, x, y);
-          this.solidTiles.add(tile.sprite);
-          this.tileObjects.push(tile);
+        if (tile !== TILE_EMPTY) {
+          const tileObject = new TileObject(this.scene, x, y, this.tileSize, Number(tile));
+          this.solidTiles.add(tileObject.sprite);
+          this.tileObjects.push(tileObject);
         }
 
         if (object === OBJECT_COLLECTIBLE) {
@@ -78,9 +78,7 @@ export class TiledWorld {
         sprite.y + pad >= view.y &&
         sprite.y - pad <= view.bottom;
 
-      if (sprite.visible !== isVisible) {
-        sprite.setVisible(isVisible);
-      }
+      tileObject.setVisible(isVisible);
     }
   }
 }

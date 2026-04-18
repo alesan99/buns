@@ -10,7 +10,7 @@ export const OBJECT_NONE = 0;
 export const OBJECT_SPAWN = 1;
 export const OBJECT_COLLECTIBLE = 2;
 
-export type TileType = typeof TILE_EMPTY | typeof TILE_SOLID;
+export type TileType = number;
 export type ObjectType =
   | typeof OBJECT_NONE
   | typeof OBJECT_SPAWN

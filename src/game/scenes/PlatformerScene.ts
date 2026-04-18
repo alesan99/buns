@@ -35,6 +35,11 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
     key: "PlatformerScene",
     preload(this: Phaser.Scene) {
       this.load.image("background", "/background.png");
+      this.load.spritesheet("tiles", "/tiles.png", {
+        frameWidth: 64,
+        frameHeight: 64,
+        spacing: 1,
+      });
       this.load.spritesheet("bun", "/bun.png", {
         frameWidth: 512,
         frameHeight: 512,
