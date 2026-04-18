@@ -14,12 +14,59 @@ import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRando
 export function createPlatformerScene(Phaser: typeof import("phaser")) {
   let player: Player;
   let world: TiledWorld;
+  let background: Phaser.GameObjects.Image | undefined;
+
+  const resizeBackground = (scene: Phaser.Scene) => {
+    if (!background) return;
+    const zoom = scene.cameras.main.zoom || 1;
+    const baseScale = Math.max(
+      scene.scale.width / background.width,
+      scene.scale.height / background.height,
+    );
+
+    background.setOrigin(0.5, 0.5);
+    background.setPosition(scene.scale.width / 2, scene.scale.height / 2);
+    background.setScale((baseScale * 2) / zoom);
+    background.setScrollFactor(0);
+    background.setDepth(-100);
+  };
 
   return {
     key: "PlatformerScene",
+    preload(this: Phaser.Scene) {
+      this.load.image("background", "/background.png");
+      this.load.spritesheet("bun", "/bun.png", {
+        frameWidth: 512,
+        frameHeight: 512,
+      });
+    },
     create(this: Phaser.Scene) {
+      const handleResize = () => resizeBackground(this);
+
+      background = this.add.image(0, 0, "background");
+      resizeBackground(this);
+
       createPrimitiveTextures(this, TILE_SIZE);
       this.cameras.main.setBackgroundColor("#f5e8cc");
+
+      // Create player animations
+      if (!this.anims.exists("bun-stand")) {
+        this.anims.create({
+          key: "bun-stand",
+          frames: [{ key: "bun", frame: 0 }],
+          frameRate: 10,
+          repeat: -1,
+        });
+      }
+
+      if (!this.anims.exists("bun-jump")) {
+        this.anims.create({
+          key: "bun-jump",
+          frames: [{ key: "bun", frame: 1 }],
+          frameRate: 10,
+          repeat: -1,
+        });
+      }
 
       const levelLayout = populateLevelLayoutRandom(createBaseLevelLayout());
       world = new TiledWorld(this, levelLayout, TILE_SIZE);
@@ -46,10 +93,15 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         CAMERA_VISIBLE_TILES_ACROSS,
       );
 
+      // Re-apply after camera zoom is configured.
+      resizeBackground(this);
+
       world.updateTileVisibility(this.cameras.main);
 
+      this.scale.on("resize", handleResize);
+
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-        // Delete stuff here
+        this.scale.off("resize", handleResize);
       });
     },
     update(this: Phaser.Scene) {
