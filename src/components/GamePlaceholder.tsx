@@ -18,7 +18,7 @@ export function GamePlaceholder() {
         </button>
       </header>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-12">
+      <div className="journal-page-content flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-12">
         <p className="text-6xl" aria-hidden>
           🎮
         </p>

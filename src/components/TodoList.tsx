@@ -28,7 +28,7 @@ export function TodoList() {
         <AddTodoButton />
       </header>
 
-      <div className="flex-1 space-y-4 overflow-y-auto px-4 pt-4 pb-28 md:px-6 md:pb-6">
+      <div className="journal-page-content flex-1 space-y-4 overflow-y-auto px-4 pt-4 pb-28 md:px-6 md:pb-6">
         <div className="flex items-stretch gap-2">
           <CalendarPopover />
           <div className="min-w-0 flex-1">

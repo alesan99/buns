@@ -86,8 +86,8 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
 
             {/* Left page — bg matches destination immediately on click so the
                 back face colour and the section underneath are in sync. */}
-            <section className={`paper-lines relative min-w-0 flex-1 overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none ${flipping === "forward" ? "bg-honey-tint" : "bg-card"}`}>
-              <div key={pathname} className="h-full journal-page-content">
+            <section className="paper-lines relative min-w-0 flex-1 overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none bg-card">
+              <div key={pathname} className="h-full">
                 {children}
               </div>
             </section>
