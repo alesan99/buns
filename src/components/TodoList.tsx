@@ -50,7 +50,7 @@ export function TodoList() {
           className="text-4xl leading-none text-ink select-none"
           style={{ fontFamily: "var(--font-gluten), cursive" }}
         >
-          
+          Bunny To-Doodoo
         </span>
         <AddTodoButton />
       </header>

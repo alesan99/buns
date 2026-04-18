@@ -135,7 +135,9 @@ export function populateLevelLayoutRandom(
     let collectibleRow = row - 1;
 
     for (let col = 0; col < width; col += 1) {
-      const hWeight = gaussian(col - centerCol, hSigma);
+      const warp = fbm(col * 0.8, seed) * 2 - 1;
+      const warpedCol = col + warp * 3;
+      const hWeight = gaussian(warpedCol - centerCol, hSigma);
       if (hWeight < hThreshold) continue;
 
       const thicknessCurve = Math.pow(hWeight, 0.5); 
