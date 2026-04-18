@@ -111,18 +111,28 @@ export function TodoItem({ todo, showOriginalDate = false }: Props) {
         {/* Right edge: badge then action buttons */}
         <div className="flex shrink-0 items-center gap-1">
           {!todo.completed && overdue && (
-            <PiCarrotDuotone
-              className="h-6 w-6 shrink-0"
-              style={{ color: "#7a5c3a" }}
-              aria-label="Overdue"
-            />
+            <span className="relative group/carrot">
+              <PiCarrotDuotone
+                className="h-6 w-6 shrink-0"
+                style={{ color: "#7a5c3a" }}
+                aria-label="Overdue"
+              />
+              <span className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-walnut px-2 py-1 text-xs text-cream opacity-0 transition-opacity group-hover/carrot:opacity-100">
+                carrot of plague
+              </span>
+            </span>
           )}
           {todo.completed && (
-            <PiCarrotDuotone
-              className="h-6 w-6 shrink-0"
-              style={{ color: "#e07030" }}
-              aria-label="Done"
-            />
+            <span className="relative group/carrot">
+              <PiCarrotDuotone
+                className="h-6 w-6 shrink-0"
+                style={{ color: "#e07030" }}
+                aria-label="Done"
+              />
+              <span className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-walnut px-2 py-1 text-xs text-cream opacity-0 transition-opacity group-hover/carrot:opacity-100">
+                carrot of completeness
+              </span>
+            </span>
           )}
           <button
             onClick={() => setEditOpen(true)}
