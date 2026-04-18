@@ -2,14 +2,148 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { PiCarrotFill, PiCarrotDuotone } from "react-icons/pi";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
 import { ScrapbookNotes } from "./ScrapbookNotes";
+import { useUserStats } from "@/hooks/useUserStats";
+
+const MAX_PLAYS = 5;
+const ICON = 34;          // full icon render size
+const CLIP = 20;          // px to show — leaves + top of orange body
+const ROTATIONS = [-8, 4, -5, 9, -3];   // each unique so none are parallel
+const GAP = 5;
+
+function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+  }, []);
+
+  const duration = shown ? 150 : 100;
+  const easing = shown ? "ease-out" : "ease-in";
+  const filledCount = Math.min(count, MAX_PLAYS);
+  const isEmpty = count === 0;
+
+  const soilW = MAX_PLAYS * ICON + (MAX_PLAYS - 1) * GAP;
+
+  return (
+    <div
+      role="status"
+      aria-label={`${count} plays remaining`}
+      style={{
+        position: "absolute",
+        top: "1.25rem",
+        left: "1.5rem",
+        zIndex: 10,
+        opacity: shown ? 1 : 0,
+        transform: `translateY(${shown ? 0 : 6}px)`,
+        transition: reducedMotion
+          ? "none"
+          : `opacity ${duration}ms ${easing}, transform ${duration}ms ${easing}`,
+        pointerEvents: "none",
+      }}
+    >
+      {/* Carrot tops — each icon clipped to show leaves + hint of orange */}
+      <div style={{ display: "flex", gap: GAP, alignItems: "flex-end" }}>
+        {Array.from({ length: MAX_PLAYS }).map((_, i) => {
+          const filled = i < filledCount;
+          return (
+            <div
+              key={i}
+              style={{
+                transform: `rotate(${ROTATIONS[i]}deg)`,
+                transformOrigin: "50% 100%",
+                flexShrink: 0,
+              }}
+            >
+              {/* clip window — hides the pointed tip below */}
+              <div style={{ width: ICON, height: CLIP, overflow: "hidden" }}>
+                {filled ? (
+                  <PiCarrotFill
+                    aria-hidden="true"
+                    style={{
+                      width: ICON,
+                      height: ICON,
+                      color: "#E07030",
+                      display: "block",
+                      filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.18))",
+                    }}
+                  />
+                ) : (
+                  <PiCarrotDuotone
+                    aria-hidden="true"
+                    style={{
+                      width: ICON,
+                      height: ICON,
+                      color: "rgba(61,53,43,0.28)",
+                      display: "block",
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {count > MAX_PLAYS && (
+          <span
+            aria-hidden="true"
+            style={{
+              fontFamily: "var(--font-handwritten), cursive",
+              fontSize: "0.82rem",
+              fontWeight: 700,
+              color: "var(--color-walnut)",
+              opacity: 0.65,
+              alignSelf: "flex-end",
+              marginBottom: 3,
+            }}
+          >
+            +{count - MAX_PLAYS}
+          </span>
+        )}
+      </div>
+
+      {/* Soil strip */}
+      <div
+        aria-hidden="true"
+        style={{
+          width: soilW,
+          height: 9,
+          background: "linear-gradient(to bottom, #B8926A, #9A7355)",
+          borderRadius: "2px 2px 5px 5px",
+          boxShadow: "0 2px 5px rgba(61,43,20,0.22)",
+        }}
+      />
+
+      {/* Handwritten label */}
+      <span
+        aria-hidden="true"
+        style={{
+          display: "block",
+          fontFamily: "var(--font-reenie-beanie), cursive",
+          fontSize: "1rem",
+          fontWeight: 400,
+          color: "var(--color-walnut)",
+          opacity: isEmpty ? 0.38 : 0.55,
+          lineHeight: 1,
+          marginTop: 4,
+          paddingLeft: 1,
+        }}
+      >
+        {isEmpty ? "no plays!" : "plays"}
+      </span>
+    </div>
+  );
+}
 
 export function BunnyPanel() {
   const flipTo = useFlipTo();
   const pathname = usePathname();
   const onGame = pathname === "/game";
   const isFlipping = useIsFlipping();
+  const { playsRemaining } = useUserStats();
 
   const [notesShown, setNotesShown] = useState(true);
 
@@ -25,15 +159,20 @@ export function BunnyPanel() {
         onGame || isFlipping ? "bg-honey-tint" : "bg-card",
       ].join(" ")}
     >
-      {/* Play Game button — top-right corner, outside flex flow */}
-      <button
-        onClick={() => flipTo("/game")}
-        disabled={onGame || !!isFlipping}
-        className="absolute rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97] disabled:invisible"
-        style={{ top: "1.5rem", right: "1.5rem" }}
-      >
-        Play Game →
-      </button>
+      {/* Plays indicator — top-left corner, fades with scrapbook notes */}
+      <PlaysIndicator shown={notesShown && !onGame} count={playsRemaining} />
+
+      {/* Play Game button — top-right corner, hidden on game page */}
+      {!onGame && (
+        <button
+          onClick={() => flipTo("/game")}
+          disabled={!!isFlipping || playsRemaining === 0}
+          className="absolute rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          style={{ top: "1.5rem", right: "1.5rem" }}
+        >
+          Play Game →
+        </button>
+      )}
 
       {/*
        * Top spacer — counterbalances the ScrapbookNotes block below the cutout

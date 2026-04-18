@@ -108,41 +108,36 @@ export function TodoItem({ todo, showOriginalDate = false }: Props) {
           )}
         </div>
 
-        {/* Right edge: action buttons slide in, badge stays at far right */}
-        <div className="flex shrink-0 items-center">
-          {/* Edit + delete — clipped at zero width, expands on hover */}
-          <div className="flex items-center gap-1 overflow-hidden max-w-0 group-hover:max-w-20 transition-all duration-200 ease-out">
-            <button
-              onClick={() => setEditOpen(true)}
-              aria-label="Edit task"
-              className="rounded-md p-1 text-ink-muted transition hover:bg-sage-tint hover:text-primary-ink focus:opacity-100"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setConfirmDelete(true)}
-              aria-label="Delete todo"
-              className="rounded-md p-1 text-ink-muted transition hover:bg-overdue-soft hover:text-overdue-ink focus:opacity-100"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Badge — always at far right */}
+        {/* Right edge: badge then action buttons */}
+        <div className="flex shrink-0 items-center gap-1">
           {!todo.completed && overdue && (
             <PiCarrotDuotone
-              className="h-6 w-6 ml-1 shrink-0"
+              className="h-6 w-6 shrink-0"
               style={{ color: "#7a5c3a" }}
               aria-label="Overdue"
             />
           )}
           {todo.completed && (
             <PiCarrotFill
-              className="h-6 w-6 ml-1 shrink-0"
+              className="h-6 w-6 shrink-0"
               style={{ color: "#e07030" }}
               aria-label="Done"
             />
           )}
+          <button
+            onClick={() => setEditOpen(true)}
+            aria-label="Edit task"
+            className="rounded-md p-1 text-ink-muted opacity-50 transition hover:opacity-100 hover:bg-sage-tint hover:text-primary-ink focus:opacity-100"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            aria-label="Delete todo"
+            className="rounded-md p-1 text-ink-muted opacity-50 transition hover:opacity-100 hover:bg-overdue-soft hover:text-overdue-ink focus:opacity-100"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
       </li>
 
