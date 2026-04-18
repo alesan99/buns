@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { PiCarrotFill, PiCarrotDuotone } from "react-icons/pi";
+import { PiCarrotDuotone } from "react-icons/pi";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
 import { ScrapbookNotes } from "./ScrapbookNotes";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -61,7 +61,7 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
               {/* clip window — hides the pointed tip below */}
               <div style={{ width: ICON, height: CLIP, overflow: "hidden" }}>
                 {filled ? (
-                  <PiCarrotFill
+                  <PiCarrotDuotone
                     aria-hidden="true"
                     style={{
                       width: ICON,
@@ -122,7 +122,7 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         aria-hidden="true"
         style={{
           display: "block",
-          fontFamily: "var(--font-reenie-beanie), cursive",
+          fontFamily: "var(--font-gluten), cursive",
           fontSize: "1rem",
           fontWeight: 400,
           color: "var(--color-walnut)",
@@ -134,6 +134,70 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
       >
         {isEmpty ? "no plays!" : "plays"}
       </span>
+    </div>
+  );
+}
+
+function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const size = hovered && !disabled ? 108 : 90;
+
+  return (
+    <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 160, height: 160 }}>
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          fontFamily: "var(--font-logo), cursive",
+          fontSize: "1.1rem",
+          color: "var(--color-ink-muted)",
+          top: Math.round(size * 0.4),
+          right: Math.round(size * 0.55),
+          textAlign: "right",
+          transform: "rotate(40deg)",
+          transformOrigin: "top right",
+          lineHeight: 1.15,
+          opacity: disabled ? 0.35 : 0.75,
+          transition: "top 0.25s ease, right 0.25s ease, opacity 0.2s",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+        }}
+      >
+        play a game →
+      </div>
+
+      <div
+        aria-hidden
+        style={{
+          position: "absolute", top: 0, right: 0,
+          width: size + 8, height: size + 8,
+          clipPath: "polygon(100% 0, 100% 100%, 0 0)",
+          background: "rgba(0,0,0,0.10)",
+          transition: "all 0.25s ease",
+          pointerEvents: "none",
+        }}
+      />
+
+      <button
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={onClick}
+        disabled={disabled}
+        aria-label="Play a game"
+        style={{
+          position: "absolute", top: 0, right: 0,
+          width: size, height: size,
+          clipPath: "polygon(100% 0, 100% 100%, 0 0)",
+          background: "var(--color-oat)",
+          border: "none", padding: 0,
+          cursor: disabled ? "not-allowed" : "pointer",
+          filter: `drop-shadow(3px 3px ${hovered && !disabled ? 8 : 5}px rgba(0,0,0,${hovered && !disabled ? 0.22 : 0.14}))`,
+          transition: "all 0.25s ease",
+          opacity: disabled ? 0.4 : 1,
+          pointerEvents: "auto",
+        }}
+      />
+
     </div>
   );
 }
@@ -162,16 +226,11 @@ export function BunnyPanel() {
       {/* Plays indicator — top-left corner, fades with scrapbook notes */}
       <PlaysIndicator shown={notesShown && !onGame} count={playsRemaining} />
 
-      {/* Play Game button — top-right corner, hidden on game page */}
       {!onGame && (
-        <button
+        <FoldedCorner
           onClick={() => flipTo("/game")}
           disabled={!!isFlipping || playsRemaining === 0}
-          className="absolute rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-          style={{ top: "1.5rem", right: "1.5rem" }}
-        >
-          Play Game →
-        </button>
+        />
       )}
 
       {/*
@@ -194,14 +253,12 @@ export function BunnyPanel() {
               }
         }
       >
-        <span
-          className="text-[160px] leading-none md:text-[180px] lg:text-[200px]"
-          role="img"
-          aria-label="Bunny"
-          style={{ filter: "drop-shadow(0 4px 8px rgba(61, 53, 43, 0.3))" }}
-        >
-          🐰
-        </span>
+        <img
+          src="/bunny.png"
+          alt="Bunny"
+          className="w-48 md:w-56 lg:w-64"
+          style={{}}
+        />
       </div>
 
       {/* Anya label + scrapbook notes — in flex flow so they never overlap Anya */}

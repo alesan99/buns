@@ -11,9 +11,9 @@
 
 @theme {
   /* Sage — primary brand. */
-  --color-sage:       #a8c5a0;
-  --color-sage-tint:  #e4f0e2;
-  --color-sage-deep:  #4e7048;
+  --color-pink:       #F3BAD4;
+  --color-pink-tint:  #e4f0e2;
+  --color-pink-deep:  #F0A8CA;
 
   /* Fern — completed / done. Warmer, more saturated green in the sage family. */
   --color-moss:       #7ab878;
@@ -56,9 +56,9 @@
 @theme inline {
   --color-surface:      var(--color-oat);
   --color-card:         var(--color-cream);
-  --color-primary:      var(--color-sage);
-  --color-primary-soft: var(--color-sage-tint);
-  --color-primary-ink:  var(--color-sage-deep);
+  --color-primary:      var(--color-pink);
+  --color-primary-soft: var(--color-pink-tint);
+  --color-primary-ink:  var(--color-pink-deep);
   --color-done:         var(--color-moss);
   --color-done-soft:    var(--color-moss-tint);
   --color-done-ink:     var(--color-moss-deep);
@@ -75,7 +75,7 @@
   --font-sans:          var(--font-geist-sans);
   --font-mono:          var(--font-geist-mono);
   --font-handwritten:   var(--font-caveat);
-  --font-logo:          var(--font-reenie-beanie);
+  --font-logo:          var(--font-gluten);
 }
 
 body {
@@ -102,7 +102,7 @@ body {
 
 /* Themed focus ring for filter tape buttons — box-shadow works through clip-path. */
 .filter-item:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-oat), 0 0 0 4px var(--color-sage) !important;
+  box-shadow: 0 0 0 2px var(--color-oat), 0 0 0 4px var(--color-pink) !important;
   border-radius: 3px;
 }
 
