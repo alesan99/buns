@@ -1,5 +1,5 @@
-import { GamePlaceholder } from "@/components/GamePlaceholder";
+import { GameStage } from "@/components/GameStage";
 
 export default function GamePage() {
-  return <GamePlaceholder />;
+  return <GameStage />;
 }
