@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Caveat, Geist, Geist_Mono, Gluten } from "next/font/google";
+import { Boogaloo, Caveat, Geist, Geist_Mono } from "next/font/google";
 import { JournalShell } from "@/components/JournalShell";
 import "./globals.css";
 
@@ -19,9 +19,10 @@ const caveat = Caveat({
   weight: ["500", "700"],
 });
 
-const gluten = Gluten({
+const gluten = Boogaloo({
   variable: "--font-gluten",
   subsets: ["latin"],
+  weight: "400",
 });
 export const metadata: Metadata = {
   title: "Bunny Bulletin",
