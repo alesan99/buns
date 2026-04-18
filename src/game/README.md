@@ -28,3 +28,16 @@ Use Phaser Arcade Physics unless a later requirement needs advanced rigid-body b
 
 - The current canvas-based approach should be replaced by Phaser scene code.
 - The game folder should own the Phaser-specific scene and entity setup.
+
+## Current Structure
+
+- `createHelloWorldGame.ts` — Phaser game boot config used by the React mount component.
+- `config.ts` — tile size and 2D layout data.
+- `scenes/PlatformerScene.ts` — scene orchestration (wires world, player, physics, camera, and overlap rules).
+- `entities/Player.ts` — player character movement and jump logic.
+- `entities/TileObject.ts` — collidable tile object.
+- `entities/Collectible.ts` — floating collectible object.
+- `world/TiledWorld.ts` — parses the 2D layout and instantiates tiles/collectibles/spawn.
+- `world/createPrimitiveTextures.ts` — primitive runtime textures for player/tile/collectible.
+- `physics/setupPhysicsWorld.ts` — Arcade physics world bounds + gravity setup.
+- `camera/setupCamera.ts` — camera follow + world clamping.
