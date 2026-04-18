@@ -17,6 +17,7 @@ type TodosState = {
   v: 1;
   todos: Todo[];
   selectedDate: string;
+  windowStart: string;
   addTodo: (input: {
     title: string;
     dueDate: string;
@@ -26,6 +27,7 @@ type TodosState = {
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
   setSelectedDate: (date: string) => void;
+  setWindowStart: (date: string) => void;
 };
 
 function newId(): string {
@@ -41,6 +43,7 @@ export const useTodos = create<TodosState>()(
       v: 1,
       todos: [],
       selectedDate: todayIso(),
+      windowStart: todayIso(),
 
       addTodo: ({ title, dueDate, dueTime, notes }) =>
         set((state) => ({
@@ -75,11 +78,12 @@ export const useTodos = create<TodosState>()(
         set((state) => ({ todos: state.todos.filter((t) => t.id !== id) })),
 
       setSelectedDate: (date) => set({ selectedDate: date }),
+      setWindowStart: (date) => set({ windowStart: date }),
     }),
     {
       name: "bunny-bulletin-todos-v1",
       version: 1,
-      // Don't persist selectedDate — every cold load should default to today.
+      // Don't persist selectedDate or windowStart — every cold load defaults to today.
       partialize: (state) => ({ v: state.v, todos: state.todos }),
     },
   ),

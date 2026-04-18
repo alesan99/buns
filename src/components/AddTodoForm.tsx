@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { CalendarDays, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTodos } from "@/store/todos";
 import {
@@ -23,8 +23,12 @@ export function AddTodoForm({ onClose }: Props) {
   const setSelectedDate = useTodos((s) => s.setSelectedDate);
   const selectedDate = useTodos((s) => s.selectedDate);
 
+  const today = todayIso();
+  // Never allow a past default — if the user is viewing an overdue day, use today.
+  const initialDay = selectedDate >= today ? selectedDate : today;
+
   const [title, setTitle] = useState("");
-  const [day, setDay] = useState(selectedDate);
+  const [day, setDay] = useState(initialDay);
   const [allDay, setAllDay] = useState(true);
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
@@ -42,21 +46,21 @@ export function AddTodoForm({ onClose }: Props) {
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     if (!title.trim()) return;
+    // Guard: do not allow a past date to sneak through.
+    const safeDay = day >= today ? day : today;
     addTodo({
       title,
-      dueDate: day,
+      dueDate: safeDay,
       dueTime: allDay ? undefined : time || undefined,
       notes: notes || undefined,
     });
-    // Jump to the day we just added to, so the user always sees their new item.
-    setSelectedDate(day);
+    setSelectedDate(safeDay);
     onClose();
   }
 
-  const today = todayIso();
   const days: string[] = [];
   for (let i = 0; i < FORM_DAYS; i++) days.push(addDaysIso(today, i));
-  if (!days.includes(day)) days.unshift(day);
+  if (day > days[days.length - 1]) days.push(day);
 
   return (
     <div
@@ -70,7 +74,7 @@ export function AddTodoForm({ onClose }: Props) {
         className="w-full max-w-md rounded-t-3xl bg-paper p-5 shadow-2xl ring-1 ring-divider md:mt-20 md:ml-4 md:rounded-3xl"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-ink">New Bun 🥕</h2>
+          <h2 className="text-lg font-bold text-ink">New Task</h2>
           <button
             type="button"
             onClick={onClose}
@@ -99,7 +103,7 @@ export function AddTodoForm({ onClose }: Props) {
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-muted">
             Day
           </span>
-          <div className="flex gap-1 overflow-x-auto">
+          <div className="mb-2 flex gap-1 overflow-x-auto">
             {days.map((iso) => {
               const isActive = iso === day;
               return (
@@ -120,6 +124,21 @@ export function AddTodoForm({ onClose }: Props) {
               );
             })}
           </div>
+          <label className="flex items-center gap-2 rounded-xl bg-cream px-3 py-2 ring-1 ring-divider focus-within:ring-2 focus-within:ring-primary">
+            <CalendarDays className="h-4 w-4 shrink-0 text-ink-muted" />
+            <span className="text-xs font-semibold text-ink-muted">
+              Or pick a date:
+            </span>
+            <input
+              type="date"
+              min={today}
+              value={day}
+              onChange={(e) => {
+                if (e.target.value && e.target.value >= today) setDay(e.target.value);
+              }}
+              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-ink focus:outline-none"
+            />
+          </label>
         </div>
 
         <div className="mt-4">
@@ -164,7 +183,7 @@ export function AddTodoForm({ onClose }: Props) {
           disabled={!title.trim()}
           className="mt-5 w-full rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-cream shadow-sm transition hover:bg-primary-ink active:scale-[0.98] disabled:opacity-50"
         >
-          Hop to it
+          Add Task
         </button>
       </form>
     </div>

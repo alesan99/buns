@@ -20,10 +20,10 @@
   --color-moss-tint:  #dde7d5;
   --color-moss-deep:  #3a5234;
 
-  /* Clay — overdue / warning. Warm terracotta, not alarming red. */
-  --color-clay:       #c97a4f;
-  --color-clay-tint:  #f2dbcc;
-  --color-clay-deep:  #8a4a25;
+  /* Clay — overdue / warning. Warm brick red, clearly urgent. */
+  --color-clay:       #b8432a;
+  --color-clay-tint:  #f0d4c9;
+  --color-clay-deep:  #6e1f10;
 
   /* Dusk — pending / info. Dusty muted blue. */
   --color-dusk:       #708baf;
@@ -89,3 +89,54 @@ body {
 /* Day strip — hide scrollbar, keep snap. */
 .day-strip { scrollbar-width: none; }
 .day-strip::-webkit-scrollbar { display: none; }
+
+/*
+ * Journal look — open-book effect.
+ * .journal-stack: stacked box-shadows create the illusion of ~3 pages behind the front page.
+ * .journal-crease: dark gradient band down the center suggesting the spine depth.
+ * .journal-page-lines: thin vertical rules on the outer edge of each page.
+ */
+/* Front journal — soft lift from the stack below */
+.journal-front {
+  box-shadow:
+    0 1px 0 rgba(61, 53, 43, 0.05),
+    0 32px 64px -16px rgba(61, 53, 43, 0.35);
+}
+
+/* Pseudo page layers — clearly visible tans so the stack pops against the oat bg */
+.page-layer-near {
+  background: #ead9af;
+  box-shadow: 0 8px 18px -6px rgba(61, 53, 43, 0.35);
+}
+.page-layer-far {
+  background: #c9b57e;
+  box-shadow: 0 12px 24px -8px rgba(61, 53, 43, 0.4);
+}
+
+.journal-crease {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-walnut) 5%, transparent) 40%,
+    color-mix(in srgb, var(--color-walnut) 20%, transparent) 50%,
+    color-mix(in srgb, var(--color-walnut) 5%, transparent) 60%,
+    transparent 100%
+  );
+}
+
+.journal-page-lines-left {
+  background-image:
+    linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px);
+  background-size: 3px 100%, 3px 100%, 3px 100%;
+  background-position: 2px 0, 6px 0, 10px 0;
+  background-repeat: no-repeat;
+}
+
+.journal-page-lines-right {
+  background-image:
+    linear-gradient(90deg, transparent calc(100% - 3px), var(--color-hairline) calc(100% - 3px), var(--color-hairline) calc(100% - 2px), transparent calc(100% - 2px)),
+    linear-gradient(90deg, transparent calc(100% - 7px), var(--color-hairline) calc(100% - 7px), var(--color-hairline) calc(100% - 6px), transparent calc(100% - 6px)),
+    linear-gradient(90deg, transparent calc(100% - 11px), var(--color-hairline) calc(100% - 11px), var(--color-hairline) calc(100% - 10px), transparent calc(100% - 10px));
+}

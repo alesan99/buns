@@ -24,13 +24,17 @@ export function TodoList() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between gap-3 px-4 pt-4 md:px-6 md:pt-6">
+      <header className="flex items-center justify-end gap-3 px-4 pt-4 md:px-6 md:pt-6">
         <AddTodoButton />
-        <CalendarPopover />
       </header>
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 pt-4 pb-28 md:px-6 md:pb-6">
-        <DaySelector />
+        <div className="flex items-stretch gap-2">
+          <CalendarPopover />
+          <div className="min-w-0 flex-1">
+            <DaySelector />
+          </div>
+        </div>
 
         <h3 className="px-1 text-sm font-semibold text-ink-muted">
           {dayLongLabel(selected)}
@@ -81,9 +85,9 @@ function EmptyState() {
       <p className="text-4xl" aria-hidden>
         🐰
       </p>
-      <p className="mt-2 text-sm font-semibold text-ink">No buns on the list.</p>
+      <p className="mt-2 text-sm font-semibold text-ink">Nothing on the list.</p>
       <p className="mt-1 text-xs text-ink-muted">
-        Hit <span className="font-bold text-primary-ink">+ New Bun</span> to add one.
+        Tap <span className="font-bold text-primary-ink">+ New Task</span> to add one.
       </p>
     </div>
   );
