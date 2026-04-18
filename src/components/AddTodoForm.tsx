@@ -363,7 +363,6 @@ export function AddTodoForm({ onClose, todo }: Props) {
             </span>
             <span className="flex-1">
               <span className="block text-sm font-semibold text-ink">All day</span>
-              <span className="block text-xs text-ink-muted">No specific time needed</span>
             </span>
           </button>
         </div>
