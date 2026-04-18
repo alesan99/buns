@@ -185,7 +185,7 @@ export function ScrapbookNotes({ shown }: ScrapbookNotesProps) {
         <Note
           label="level"
           value={`Lv. ${level}`}
-          tapeColor="var(--color-sage)"
+          tapeColor="var(--color-pink)"
           noteRotation={-3}
           tapeRotation={-5}
           ariaLabel={`Level: ${level}`}
