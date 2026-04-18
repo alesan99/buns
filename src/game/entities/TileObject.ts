@@ -13,8 +13,8 @@ export class TileObject {
     this.sprite.refreshBody();
 
     this.outlineVisual = scene.add.image(x, y, "tiles", frameIndex);
-    this.outlineVisual.setDisplaySize(tileSize * 1.8, tileSize * 1.8);
-    this.outlineVisual.setTint(0x000000);
+    this.outlineVisual.setDisplaySize(tileSize * 1.7, tileSize * 1.7);
+    this.outlineVisual.setTint(0x444444);
     this.outlineVisual.setDepth(0);
 
     this.visual = scene.add.image(x, y, "tiles", frameIndex);
