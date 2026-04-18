@@ -1,16 +1,15 @@
 import type * as Phaser from "phaser";
 import {
+  type LevelGrid,
   OBJECT_COLLECTIBLE,
-  OBJECT_NONE,
   OBJECT_SPAWN,
-  TILE_EMPTY,
   TILE_SOLID,
-  type LevelLayout,
 } from "@/game/config";
 import { Collectible } from "@/game/entities/Collectible";
 import { TileObject } from "@/game/entities/TileObject";
 
 export class TiledWorld {
+  private readonly tileObjects: TileObject[] = [];
   readonly solidTiles: Phaser.Physics.Arcade.StaticGroup;
   readonly collectibles: Collectible[] = [];
   readonly collectibleGroup: Phaser.Physics.Arcade.Group;
@@ -20,32 +19,31 @@ export class TiledWorld {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    layout: LevelLayout,
+    layout: LevelGrid,
     private readonly tileSize: number,
   ) {
     this.solidTiles = this.scene.physics.add.staticGroup();
     this.collectibleGroup = this.scene.physics.add.group();
 
-    const widthTiles = layout[0]?.length ?? 1;
+    const widthTiles = layout.width;
     this.worldWidthPx = widthTiles * tileSize;
-    this.worldHeightPx = layout.length * tileSize;
+    this.worldHeightPx = layout.height * tileSize;
 
     this.build(layout);
   }
 
-  private build(layout: LevelLayout) {
-    for (let row = 0; row < layout.length; row += 1) {
-      const line = layout[row] ?? [];
-      for (let col = 0; col < line.length; col += 1) {
-        const cell = line[col] ?? [TILE_EMPTY, OBJECT_NONE];
-        const tile = cell[0];
-        const object = cell[1];
+  private build(layout: LevelGrid) {
+    for (let row = 0; row < layout.height; row += 1) {
+      for (let col = 0; col < layout.width; col += 1) {
+        const tile = layout.getTile(row, col);
+        const object = layout.getTile(row, col, 1);
         const x = col * this.tileSize + this.tileSize / 2;
         const y = row * this.tileSize + this.tileSize / 2;
 
         if (tile === TILE_SOLID) {
           const tile = new TileObject(this.scene, x, y);
           this.solidTiles.add(tile.sprite);
+          this.tileObjects.push(tile);
         }
 
         if (object === OBJECT_COLLECTIBLE) {
@@ -63,8 +61,26 @@ export class TiledWorld {
     if (this.spawnPoint.x === 0 && this.spawnPoint.y === 0) {
       this.spawnPoint = {
         x: this.tileSize * 1.5,
-        y: this.tileSize * Math.max(layout.length - 2, 1),
+        y: this.tileSize * Math.max(layout.height - 2, 1),
       };
+    }
+  }
+
+  updateTileVisibility(camera: Phaser.Cameras.Scene2D.Camera) {
+    const view = camera.worldView;
+    const pad = this.tileSize;
+
+    for (const tileObject of this.tileObjects) {
+      const sprite = tileObject.sprite;
+      const isVisible =
+        sprite.x + pad >= view.x &&
+        sprite.x - pad <= view.right &&
+        sprite.y + pad >= view.y &&
+        sprite.y - pad <= view.bottom;
+
+      if (sprite.visible !== isVisible) {
+        sprite.setVisible(isVisible);
+      }
     }
   }
 }

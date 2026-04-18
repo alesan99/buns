@@ -1,10 +1,15 @@
 import type * as Phaser from "phaser";
-import { CAMERA_VISIBLE_TILES_ACROSS, LEVEL_LAYOUT, TILE_SIZE } from "@/game/config";
+import {
+  CAMERA_VISIBLE_TILES_ACROSS,
+  createBaseLevelLayout,
+  TILE_SIZE,
+} from "@/game/config";
 import { Player } from "@/game/entities/Player";
 import { setupPhysicsWorld } from "@/game/physics/setupPhysicsWorld";
 import { setupCamera } from "@/game/camera/setupCamera";
 import { TiledWorld } from "@/game/world/TiledWorld";
 import { createPrimitiveTextures } from "@/game/world/createPrimitiveTextures";
+import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRandom";
 
 export function createPlatformerScene(Phaser: typeof import("phaser")) {
   let player: Player;
@@ -16,7 +21,8 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
       createPrimitiveTextures(this, TILE_SIZE);
       this.cameras.main.setBackgroundColor("#f5e8cc");
 
-      world = new TiledWorld(this, LEVEL_LAYOUT, TILE_SIZE);
+      const levelLayout = populateLevelLayoutRandom(createBaseLevelLayout());
+      world = new TiledWorld(this, levelLayout, TILE_SIZE);
       setupPhysicsWorld(this, world.worldWidthPx, world.worldHeightPx);
 
       player = new Player(this, world.spawnPoint.x, world.spawnPoint.y);
@@ -40,12 +46,15 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         CAMERA_VISIBLE_TILES_ACROSS,
       );
 
+      world.updateTileVisibility(this.cameras.main);
+
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         // Delete stuff here
       });
     },
-    update() {
+    update(this: Phaser.Scene) {
       player?.update();
+      world?.updateTileVisibility(this.cameras.main);
     },
   };
 }

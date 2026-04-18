@@ -38,6 +38,7 @@ Use Phaser Arcade Physics unless a later requirement needs advanced rigid-body b
 - `entities/TileObject.ts` — collidable tile object.
 - `entities/Collectible.ts` — floating collectible object.
 - `world/TiledWorld.ts` — parses the 2D layout and instantiates tiles/collectibles/spawn.
+- `world/populateLevelLayoutRandom.ts` — populates a base level with random platforms and collectibles per run.
 - `world/createPrimitiveTextures.ts` — primitive runtime textures for player/tile/collectible.
 - `physics/setupPhysicsWorld.ts` — Arcade physics world bounds + gravity setup.
 - `camera/setupCamera.ts` — camera follow + world clamping.
