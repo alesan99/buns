@@ -31,7 +31,7 @@ export function StatusBuckets({ activeFilter, onToggleFilter, onClearFilter }: S
   const dayTodos = todos.filter((t) => t.dueDate === selected);
   const doneCount = dayTodos.filter((t) => t.completed).length;
   const overdueCount = todos.filter(isOverdue).length;
-  const leftCount = dayTodos.filter((t) => !t.completed && !isOverdue(t)).length;
+  const leftCount = dayTodos.filter((t) => !t.completed && !isOverdue(t)).length + overdueCount;
 
   return (
     <div className="flex flex-wrap items-end gap-4" role="group" aria-label="Task filters">
