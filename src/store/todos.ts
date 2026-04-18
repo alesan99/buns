@@ -26,6 +26,7 @@ type TodosState = {
   }) => void;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
+  updateTodo: (id: string, patch: Partial<Pick<Todo, "title" | "dueDate" | "dueTime" | "notes">>) => void;
   setSelectedDate: (date: string) => void;
   setWindowStart: (date: string) => void;
 };
@@ -76,6 +77,13 @@ export const useTodos = create<TodosState>()(
 
       deleteTodo: (id) =>
         set((state) => ({ todos: state.todos.filter((t) => t.id !== id) })),
+
+      updateTodo: (id, patch) =>
+        set((state) => ({
+          todos: state.todos.map((t) =>
+            t.id === id ? { ...t, ...patch, notes: patch.notes?.trim() || undefined } : t,
+          ),
+        })),
 
       setSelectedDate: (date) => set({ selectedDate: date }),
       setWindowStart: (date) => set({ windowStart: date }),
