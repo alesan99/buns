@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Pencil, Trash2 } from "lucide-react";
-import { PiCarrotDuotone, PiCarrotFill } from "react-icons/pi";
+import { PiCarrotDuotone } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import type { Todo } from "@/store/todos";
 import { useTodos } from "@/store/todos";
@@ -118,7 +118,7 @@ export function TodoItem({ todo, showOriginalDate = false }: Props) {
             />
           )}
           {todo.completed && (
-            <PiCarrotFill
+            <PiCarrotDuotone
               className="h-6 w-6 shrink-0"
               style={{ color: "#e07030" }}
               aria-label="Done"
