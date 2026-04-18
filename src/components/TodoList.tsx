@@ -1,18 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { useTodos } from "@/store/todos";
 import { dayLongLabel, isOverdue } from "@/lib/date";
 import { AddTodoButton } from "./AddTodoButton";
 import { CalendarPopover } from "./CalendarPopover";
 import { DaySelector } from "./DaySelector";
 import { TodoItem } from "./TodoItem";
-import { StatusBuckets } from "./StatusBuckets";
+import { StatusBuckets, FilterType } from "./StatusBuckets";
 import { useIsFlipping } from "./JournalShell";
+
+const FILTER_EMPTY_MESSAGES: Record<FilterType, string> = {
+  done: "No completed tasks yet. Get to it! 🥕",
+  left: "All done! Anya is so proud 🐰",
+  overdue: "Nothing overdue — nice work!",
+};
 
 export function TodoList() {
   const todos = useTodos((s) => s.todos);
   const selected = useTodos((s) => s.selectedDate);
   const isFlipping = useIsFlipping();
+
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null);
+
+  const toggleFilter = (filter: FilterType) => {
+    setActiveFilter((prev) => (prev === filter ? null : filter));
+  };
 
   const allOverdue = todos.filter(isOverdue).sort(sortByDateThenTime);
   const dayTodos = todos.filter((t) => t.dueDate === selected);
@@ -21,8 +34,14 @@ export function TodoList() {
     .sort(sortByTime);
   const done = dayTodos.filter((t) => t.completed).sort(sortByTime);
 
-  const isEmpty =
-    allOverdue.length === 0 && pending.length === 0 && done.length === 0;
+// Apply active filter to displayed groups
+  const visibleOverdue = activeFilter === null || activeFilter === "overdue" ? allOverdue : [];
+  const visiblePending = activeFilter === null || activeFilter === "left" ? pending : [];
+  const visibleDone = activeFilter === null || activeFilter === "done" ? done : [];
+
+  const isEmpty = allOverdue.length === 0 && pending.length === 0 && done.length === 0;
+  const isFilteredEmpty =
+    visibleOverdue.length === 0 && visiblePending.length === 0 && visibleDone.length === 0;
 
   return (
     <div className={`flex h-full flex-col transition-opacity duration-200 ${isFlipping ? "opacity-0" : ""}`}>
@@ -50,15 +69,17 @@ export function TodoList() {
 
         {isEmpty ? (
           <EmptyState />
+        ) : isFilteredEmpty && activeFilter ? (
+          <FilteredEmptyState message={FILTER_EMPTY_MESSAGES[activeFilter]} />
         ) : (
           <ul className="space-y-2">
-            {allOverdue.map((t) => (
+            {visibleOverdue.map((t) => (
               <TodoItem key={t.id} todo={t} showOriginalDate />
             ))}
-            {pending.map((t) => (
+            {visiblePending.map((t) => (
               <TodoItem key={t.id} todo={t} />
             ))}
-            {done.map((t) => (
+            {visibleDone.map((t) => (
               <TodoItem key={t.id} todo={t} />
             ))}
           </ul>
@@ -66,7 +87,7 @@ export function TodoList() {
       </div>
 
       <footer className="sticky bottom-0 border-t border-divider bg-surface/90 px-4 py-3 backdrop-blur md:px-6">
-        <StatusBuckets />
+        <StatusBuckets activeFilter={activeFilter} onToggleFilter={toggleFilter} onClearFilter={() => setActiveFilter(null)} />
       </footer>
     </div>
   );
@@ -96,6 +117,19 @@ function EmptyState() {
       <p className="mt-2 text-sm font-semibold text-ink">Nothing on the list.</p>
       <p className="mt-1 text-xs text-ink-muted">
         Tap <span className="font-bold text-primary-ink">+ New Task</span> to add one.
+      </p>
+    </div>
+  );
+}
+
+function FilteredEmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex items-center justify-center py-10 px-4 text-center">
+      <p
+        className="text-2xl text-ink-muted"
+        style={{ fontFamily: "var(--font-reenie-beanie), cursive" }}
+      >
+        {message}
       </p>
     </div>
   );

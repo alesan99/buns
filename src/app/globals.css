@@ -88,6 +88,19 @@ body {
 }
 .bunny-pop { animation: bunny-pop 260ms ease-out; }
 
+/* Scale-stamp effect for filter tape selection (applied to inner span, separate from rotation). */
+@keyframes tape-stamp {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+/* Themed focus ring for filter tape buttons — box-shadow works through clip-path. */
+.filter-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-oat), 0 0 0 4px var(--color-sage) !important;
+  border-radius: 3px;
+}
+
 /* Page-turn — right page rotates around the spine (its left edge), landing
    flat on the left. Shadow fades in gently and out as the page swings away. */
 @keyframes journal-right-flip {
