@@ -40,9 +40,9 @@ export function StatusBuckets({ activeFilter, onToggleFilter, onClearFilter }: S
         count={doneCount}
         isSelected={activeFilter === "done"}
         onToggle={() => onToggleFilter("done")}
-        tapeBg="var(--color-sage)"
-        inkColor="var(--color-sage-deep)"
-        hoverBorderColor="var(--color-sage-deep)"
+        tapeBg="var(--color-pink)"
+        inkColor="var(--color-pink-deep)"
+        hoverBorderColor="var(--color-pink-deep)"
         rotate={-2}
         ariaLabel={`Filter by done tasks, ${doneCount} completed`}
       />
