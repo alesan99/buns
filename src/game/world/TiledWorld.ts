@@ -23,7 +23,10 @@ export class TiledWorld {
     private readonly tileSize: number,
   ) {
     this.solidTiles = this.scene.physics.add.staticGroup();
-    this.collectibleGroup = this.scene.physics.add.group();
+    this.collectibleGroup = this.scene.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
 
     const widthTiles = layout.width;
     this.worldWidthPx = widthTiles * tileSize;

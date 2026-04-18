@@ -35,6 +35,7 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
     key: "PlatformerScene",
     preload(this: Phaser.Scene) {
       this.load.image("background", "/background.png");
+      this.load.image("coffee", "/coffee.png");
       this.load.spritesheet("tiles", "/tiles.png", {
         frameWidth: 64,
         frameHeight: 64,
@@ -85,7 +86,14 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         player.sprite,
         world.collectibleGroup,
         (_playerSprite, collectibleSprite) => {
-          (collectibleSprite as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
+          const sprite = collectibleSprite as Phaser.Physics.Arcade.Sprite;
+          const collectible = world.collectibles.find((item) => item.sprite === sprite);
+          if (collectible) {
+            collectible.collect();
+            return;
+          }
+
+          sprite.disableBody(true, true);
         },
       );
 

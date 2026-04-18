@@ -5,6 +5,7 @@ export const CAMERA_VISIBLE_TILES_ACROSS = 14;
 
 export const TILE_EMPTY = 0;
 export const TILE_SOLID = 1;
+export const TILE_GROUND = 2;
 
 export const OBJECT_NONE = 0;
 export const OBJECT_SPAWN = 1;
@@ -71,7 +72,7 @@ export function createBaseLevelLayout(): LevelGrid {
   const spawnCol = 2;
 
   for (let col = 0; col < WORLD_WIDTH_TILES; col += 1) {
-    grid.setTile(floorRow, col, TILE_SOLID);
+    grid.setTile(floorRow, col, TILE_GROUND);
   }
 
   grid.setTile(spawnRow, spawnCol, OBJECT_SPAWN, 1);
