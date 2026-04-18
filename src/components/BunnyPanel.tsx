@@ -1,4 +1,13 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useFlipTo } from "./JournalShell";
+
 export function BunnyPanel() {
+  const flipTo = useFlipTo();
+  const pathname = usePathname();
+  const onGame = pathname === "/game";
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
       {/* Cut-out hole in the page — bunny peeking through to another layer. */}
@@ -22,10 +31,7 @@ export function BunnyPanel() {
       {/* Washi tape — slight tilt, semi-transparent, handwritten name. */}
       <div
         className="relative -rotate-3 bg-clay-tint/85 px-10 py-1 shadow-sm"
-        style={{
-          clipPath:
-            "polygon(3% 8%, 97% 2%, 99% 92%, 2% 96%)",
-        }}
+        style={{ clipPath: "polygon(3% 8%, 97% 2%, 99% 92%, 2% 96%)" }}
       >
         <span
           className="text-3xl font-bold text-ink"
@@ -34,6 +40,16 @@ export function BunnyPanel() {
           Anya
         </span>
       </div>
+
+      <button
+        onClick={() => flipTo("/game")}
+        className={[
+          "mt-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-cream shadow-md transition hover:bg-primary-ink active:scale-[0.97]",
+          onGame ? "invisible" : "",
+        ].join(" ")}
+      >
+        Play Game →
+      </button>
     </div>
   );
 }
