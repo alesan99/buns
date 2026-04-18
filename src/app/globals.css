@@ -15,20 +15,20 @@
   --color-sage-tint:  #e4f0e2;
   --color-sage-deep:  #4e7048;
 
-  /* Seafoam — completed / done. Deeper, richer than sage. */
-  --color-moss:       #5aac8c;
-  --color-moss-tint:  #cce8de;
-  --color-moss-deep:  #2d6850;
+  /* Fern — completed / done. Warmer, more saturated green in the sage family. */
+  --color-moss:       #7ab878;
+  --color-moss-tint:  #d8edd8;
+  --color-moss-deep:  #3d6840;
 
-  /* Sienna — overdue / warning. Terracotta-red, urgent without being harsh. */
-  --color-clay:       #d9614a;
-  --color-clay-tint:  #fae0da;
-  --color-clay-deep:  #8c2e1a;
+  /* Rose-clay — overdue / warning. Warm dusty coral, shares sage's warm base. */
+  --color-clay:       #d07060;
+  --color-clay-tint:  #f5e0dc;
+  --color-clay-deep:  #883830;
 
-  /* Slate — pending / info. Dusty blue-grey, not corporate. */
-  --color-dusk:       #7893b8;
-  --color-dusk-tint:  #d8e4f5;
-  --color-dusk-deep:  #3a5480;
+  /* Wisteria — pending / info. Soft violet-blue, complements the warm greens. */
+  --color-dusk:       #9090c8;
+  --color-dusk-tint:  #dcdcf5;
+  --color-dusk-deep:  #484880;
 
   /* Ochre — accent / celebration. Warm earthy gold, not yellow. */
   --color-honey:      #c8a260;

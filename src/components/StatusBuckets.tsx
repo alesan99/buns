@@ -13,9 +13,11 @@ export function StatusBuckets() {
   const leftCount = dayTodos.filter((t) => !t.completed && !isOverdue(t)).length;
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className={`grid gap-2 ${overdueCount > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
       <Bucket label="Done" count={doneCount} tone="done" />
-      <Bucket label="Overdue" count={overdueCount} tone="overdue" />
+      {overdueCount > 0 && (
+        <Bucket label="Overdue" count={overdueCount} tone="overdue" />
+      )}
       <Bucket label="Left" count={leftCount} tone="pending" />
     </div>
   );
