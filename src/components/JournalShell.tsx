@@ -98,6 +98,38 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                 className="journal-crease pointer-events-none absolute inset-y-0 left-1/2 z-10 hidden w-10 -translate-x-1/2 md:block"
               />
 
+              {/* Large page-turn triangle — on crease, desktop only */}
+              <button
+                onClick={() => flipTo(pathname === "/" ? "/game" : "/")}
+                disabled={!!flipping}
+                aria-label={pathname === "/" ? "Play a game" : "Back to list"}
+                className="pointer-events-auto absolute z-20 hidden md:block"
+                style={{
+                  right: 0,
+                  top: 40,
+                  transform: "rotate(40deg)",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: flipping ? "not-allowed" : "pointer",
+                  opacity: flipping ? 0.3 : 1,
+                  transition: "opacity 0.2s",
+                }}
+              >
+                <svg
+                  width={80}
+                  height={56}
+                  viewBox="0 0 80 56"
+                  style={{ display: "block" }}
+                >
+                  <polygon
+                    points="0,0 80,0 40,56"
+                    fill="var(--color-walnut)"
+                    opacity="0.35"
+                  />
+                </svg>
+              </button>
+
               {/* Right page — bunny panel (persists across routes via root layout) */}
               <section className="relative order-last flex min-h-[300px] min-w-0 overflow-hidden rounded-b-3xl bg-card md:order-none md:min-h-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none">
                 <BunnyPanel />

@@ -198,23 +198,6 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
         }}
       />
 
-      {/* Triangle pointing left (270°) — sits over the corner */}
-      <svg
-        aria-hidden="true"
-        width={14}
-        height={14}
-        viewBox="0 0 10 10"
-        style={{
-          position: "absolute",
-          top: Math.round(size * 0.28),
-          right: Math.round(size * 0.18),
-          opacity: disabled ? 0.25 : hovered ? 0.85 : 0.5,
-          transition: "opacity 0.25s ease, top 0.25s ease, right 0.25s ease",
-          pointerEvents: "none",
-        }}
-      >
-        <polygon points="10,0 10,10 0,5" fill="var(--color-walnut)" transform="rotate(180,5,5)" />
-      </svg>
     </div>
   );
 }
