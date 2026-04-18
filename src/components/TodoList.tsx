@@ -24,7 +24,13 @@ export function TodoList() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center justify-end gap-3 px-4 pt-4 md:px-6 md:pt-6">
+      <header className="flex items-center justify-between gap-3 px-4 pt-4 md:px-6 md:pt-6">
+        <span
+          className="text-4xl leading-none text-ink select-none"
+          style={{ fontFamily: "var(--font-reenie-beanie), cursive" }}
+        >
+          BunnyToDoodoo
+        </span>
         <AddTodoButton />
       </header>
 
