@@ -10,40 +10,40 @@
  */
 
 @theme {
-  /* Sage — primary brand. Fresh soft sage. */
-  --color-sage:       #a8c9a4;
-  --color-sage-tint:  #e4f2e3;
-  --color-sage-deep:  #4d7850;
+  /* Teal-sage — primary brand. Warm teal with a green lean, not sterile. */
+  --color-sage:       #6bbdaa;
+  --color-sage-tint:  #d8f0eb;
+  --color-sage-deep:  #3d7068;
 
-  /* Mint — completed / done. Seafoam, more interesting than plain green. */
-  --color-moss:       #74bca0;
-  --color-moss-tint:  #cceadf;
-  --color-moss-deep:  #38715d;
+  /* Seafoam — completed / done. Deeper, richer than sage. */
+  --color-moss:       #5aac8c;
+  --color-moss-tint:  #cce8de;
+  --color-moss-deep:  #2d6850;
 
-  /* Coral — overdue / warning. Soft coral, urgent but not harsh. */
-  --color-clay:       #e07e70;
-  --color-clay-tint:  #fce8e5;
-  --color-clay-deep:  #9e3e2c;
+  /* Sienna — overdue / warning. Terracotta-red, urgent without being harsh. */
+  --color-clay:       #d9614a;
+  --color-clay-tint:  #fae0da;
+  --color-clay-deep:  #8c2e1a;
 
-  /* Periwinkle — pending / info. Real periwinkle blue. */
-  --color-dusk:       #9daed8;
-  --color-dusk-tint:  #dde6f8;
-  --color-dusk-deep:  #4a6490;
+  /* Slate — pending / info. Dusty blue-grey, not corporate. */
+  --color-dusk:       #7893b8;
+  --color-dusk-tint:  #d8e4f5;
+  --color-dusk-deep:  #3a5480;
 
-  /* Peach — accent / celebration. Warm apricot. */
-  --color-honey:      #f0a07a;
-  --color-honey-tint: #fde8da;
-  --color-honey-deep: #9a4e28;
+  /* Ochre — accent / celebration. Warm earthy gold, not yellow. */
+  --color-honey:      #c8a260;
+  --color-honey-tint: #f5e8cc;
+  --color-honey-deep: #7a5820;
 
-  /* Surfaces — light and airy. */
-  --color-oat:        #f8efe8;   /* app background */
-  --color-cream:      #fefaf5;   /* card surface */
-  --color-paper:      #ffffff;   /* lifted surface (popovers, inputs) */
+  /* Surfaces — linen warmth, not stark white. */
+  --color-oat:        #f4ece4;   /* app background */
+  --color-cream:      #fdf8f2;   /* card surface */
+  --color-paper:      #fffefb;   /* lifted surface (popovers, inputs) */
 
-  /* Text + dividers — warm but readable. */
-  --color-walnut:     #3a2e24;   /* primary ink */
-  --color-stone:      #78706a;   /* muted ink */
-  --color-hairline:   #e8ddd2;   /* borders */
+  /* Text + dividers — warm brown, never cold grey. */
+  --color-walnut:     #2c2420;   /* primary ink */
+  --color-stone:      #786e66;   /* muted ink */
+  --color-hairline:   #e4d8cc;   /* borders */
 }
 
 /* Semantic aliases — point at palette vars.
@@ -169,14 +169,14 @@ body {
     0 32px 64px -16px rgba(61, 53, 43, 0.35);
 }
 
-/* Pseudo page layers — soft warm tones, clearly pages but not distracting */
+/* Pseudo page layers — warm linen tones that read as aged paper */
 .page-layer-near {
-  background: #f2e0d4;
-  box-shadow: 0 6px 16px -6px rgba(58, 46, 36, 0.18);
+  background: #ecd8ca;
+  box-shadow: 0 6px 16px -6px rgba(44, 36, 32, 0.18);
 }
 .page-layer-far {
-  background: #e6cfc0;
-  box-shadow: 0 10px 20px -8px rgba(58, 46, 36, 0.22);
+  background: #d8c0ae;
+  box-shadow: 0 10px 20px -8px rgba(44, 36, 32, 0.22);
 }
 
 .journal-crease {
