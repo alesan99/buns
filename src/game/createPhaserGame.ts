@@ -1,6 +1,6 @@
 import { createPlatformerScene } from "@/game/scenes/PlatformerScene";
 
-export function createHelloWorldGame(
+export function createPhaserGame(
   Phaser: typeof import("phaser"),
   mountNode: HTMLElement,
 ) {

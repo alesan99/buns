@@ -31,7 +31,7 @@ Use Phaser Arcade Physics unless a later requirement needs advanced rigid-body b
 
 ## Current Structure
 
-- `createHelloWorldGame.ts` — Phaser game boot config used by the React mount component.
+- `createPhaserGame.ts` — Phaser game boot config used by the React mount component.
 - `config.ts` — tile size and 2D layout data.
 - `scenes/PlatformerScene.ts` — scene orchestration (wires world, player, physics, camera, and overlap rules).
 - `entities/Player.ts` — player character movement and jump logic.

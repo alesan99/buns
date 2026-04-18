@@ -2,7 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { createHelloWorldGame } from "@/game/createHelloWorldGame";
+import { createPhaserGame } from "@/game/createPhaserGame";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
 
 export function GameStage() {
@@ -21,7 +21,7 @@ export function GameStage() {
       if (cancelled || !mountNode.isConnected) return;
       mountNode.innerHTML = "";
 
-      game = createHelloWorldGame(Phaser, mountNode);
+      game = createPhaserGame(Phaser, mountNode);
     });
 
     return () => {

@@ -4,7 +4,7 @@ export class Player {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly speed = 260;
-  private readonly jumpVelocity = -620;
+  private readonly jumpVelocity = -1000;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.sprite = scene.physics.add.sprite(x, y, "player-bunny");

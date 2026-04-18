@@ -1,5 +1,5 @@
 import type * as Phaser from "phaser";
-import { LEVEL_LAYOUT, TILE_SIZE } from "@/game/config";
+import { CAMERA_VISIBLE_TILES_ACROSS, LEVEL_LAYOUT, TILE_SIZE } from "@/game/config";
 import { Player } from "@/game/entities/Player";
 import { setupPhysicsWorld } from "@/game/physics/setupPhysicsWorld";
 import { setupCamera } from "@/game/camera/setupCamera";
@@ -31,25 +31,17 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         },
       );
 
-      setupCamera(this, player.sprite, world.worldWidthPx, world.worldHeightPx);
-
-      this.scale.on("resize", () => {
-        this.cameras.main.setViewport(0, 0, this.scale.width, this.scale.height);
-      });
-
-      const helpText = this.add
-        .text(18, 18, "Arrows / Space to move and jump", {
-          color: "#2c2420",
-          fontFamily: "system-ui, sans-serif",
-          fontSize: "18px",
-          backgroundColor: "#fffefbcc",
-          padding: { x: 8, y: 6 },
-        })
-        .setScrollFactor(0)
-        .setDepth(10);
+      setupCamera(
+        this,
+        player.sprite,
+        world.worldWidthPx,
+        world.worldHeightPx,
+        TILE_SIZE,
+        CAMERA_VISIBLE_TILES_ACROSS,
+      );
 
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-        helpText.destroy();
+        // Delete stuff here
       });
     },
     update() {
