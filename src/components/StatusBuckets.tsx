@@ -74,7 +74,7 @@ export function StatusBuckets({ activeFilter, onToggleFilter, onClearFilter }: S
           onClick={onClearFilter}
           className="text-ink-muted hover:text-ink transition-colors duration-150"
           style={{
-            fontFamily: "var(--font-reenie-beanie), cursive",
+            fontFamily: "var(--font-gluten), cursive",
             fontSize: 15,
             cursor: "pointer",
             border: "none",
@@ -164,7 +164,7 @@ function FilterItem({
       aria-label={ariaLabel}
       className="filter-item"
       style={{
-        fontFamily: "var(--font-reenie-beanie), cursive",
+        fontFamily: "var(--font-gluten), cursive",
         cursor: "pointer",
         display: "inline-flex",
         alignItems: "center",
