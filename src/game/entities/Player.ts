@@ -6,25 +6,35 @@ export class Player {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly speed = 260;
   private readonly jumpVelocity = -1000;
-  private readonly baseOffsetX = 0;
-  private readonly baseOffsetY = 0;
+  private readonly visualOffsetX = 0;
+  private readonly visualOffsetY = -30;
   private walkBobTime = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.sprite = scene.physics.add.sprite(x, y, "bun");
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setOrigin(0.5, 0.5);
-    this.sprite.setSize(34, 34);
-    this.sprite.setOffset(this.baseOffsetX, this.baseOffsetY);
+    const body = this.sprite.body as Phaser.Physics.Arcade.Body;
+    body.setSize(34, 34, true);
     this.sprite.setVisible(false);
 
     this.visual = scene.add.sprite(x, y, "bun", 0);
     this.visual.setOrigin(0.5, 0.5);
-	this.sprite.setOffset(256, 256);
     this.visual.setScale(0.20);
     this.visual.play("bun-stand");
+    this.syncVisual(0);
 
     this.cursors = scene.input.keyboard?.createCursorKeys() ?? null;
+  }
+
+  private syncVisual(bobOffsetY = 0) {
+    const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
+    if (!body) return;
+
+    this.visual.setPosition(
+      body.center.x + this.visualOffsetX,
+      body.center.y + this.visualOffsetY + bobOffsetY,
+    );
   }
 
   update() {
@@ -56,7 +66,7 @@ export class Player {
       if (this.visual.anims.currentAnim?.key !== "bun-jump") {
         this.visual.play("bun-jump", true);
       }
-      this.visual.setPosition(this.sprite.x, this.sprite.y);
+      this.syncVisual(0);
       return;
     }
 
@@ -64,18 +74,18 @@ export class Player {
     if (movingHorizontally) {
       const dt = this.sprite.scene.game.loop.delta / 1000;
       this.walkBobTime += dt * 28;
-      const bobOffsetY = Math.abs(Math.sin(this.walkBobTime) * 12);
-      this.visual.setPosition(this.sprite.x, this.sprite.y + bobOffsetY);
+      const bobOffsetY = -Math.abs(Math.sin(this.walkBobTime) * 12);
+      this.syncVisual(bobOffsetY);
       if (this.visual.anims.currentAnim?.key !== "bun-stand") {
         this.visual.play("bun-stand", true);
       }
     } else if (this.visual.anims.currentAnim?.key !== "bun-stand") {
       this.walkBobTime = 0;
-      this.visual.setPosition(this.sprite.x, this.sprite.y);
+      this.syncVisual(0);
       this.visual.play("bun-stand", true);
     } else {
       this.walkBobTime = 0;
-      this.visual.setPosition(this.sprite.x, this.sprite.y);
+      this.syncVisual(0);
     }
   }
 }
