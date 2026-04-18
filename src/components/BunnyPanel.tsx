@@ -2,42 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { PiCarrotFill, PiCarrotDuotone } from "react-icons/pi";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
 import { ScrapbookNotes } from "./ScrapbookNotes";
 import { useUserStats } from "@/hooks/useUserStats";
 
 const MAX_PLAYS = 5;
-const GARDEN_W = 152;
-const CARROT_W = 20;
-const CARROT_H = 36;
-const SOIL_TOP = 24; // soil cuts here → ~13px of orange body visible above
-const SOIL_H = 16;
-
-// [cx (center x), top (px from container top), rotation]
-// carrot at top=2: orange body starts at y=13, soil at y=24 → 11px orange above soil ✓
-const GARDEN_SLOTS = [
-  { cx: 15,  top: 2, rot: -4 },
-  { cx: 43,  top: 0, rot:  3 },
-  { cx: 71,  top: 3, rot: -2 },
-  { cx: 99,  top: 1, rot:  5 },
-  { cx: 127, top: 2, rot: -1 },
-] as const;
-
-function CarrotSvg({ opacity = 1 }: { opacity?: number }) {
-  return (
-    <svg viewBox="0 0 20 36" width={CARROT_W} height={CARROT_H} aria-hidden="true">
-      {/* Orange tapered body — wide at top, tip buried by soil */}
-      <path d="M4,11 Q5,28 9,36 L11,36 Q15,28 16,11 Z" fill="#E8833A" opacity={opacity} />
-      {/* Ridge lines */}
-      <line x1="6" y1="17" x2="14" y2="17" stroke="#C66E2A" strokeWidth="0.6" opacity={opacity * 0.5} />
-      <line x1="7.5" y1="22" x2="12.5" y2="22" stroke="#C66E2A" strokeWidth="0.6" opacity={opacity * 0.5} />
-      {/* Green leaves — 3 fanned from orange top */}
-      <path d="M10,12 Q9,6 10,0 Q11,6 10,12" fill="#6B9B4A" opacity={opacity} />
-      <path d="M10,12 Q5,7 3,1 Q5,6 8,11 Z" fill="#7CAF55" opacity={opacity} />
-      <path d="M10,12 Q15,7 17,1 Q15,6 12,11 Z" fill="#7CAF55" opacity={opacity} />
-    </svg>
-  );
-}
+const ICON = 34;          // full icon render size
+const CLIP = 20;          // px to show — leaves + top of orange body
+const ROTATIONS = [-8, 4, -5, 9, -3];   // each unique so none are parallel
+const GAP = 5;
 
 function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -51,6 +25,8 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
   const easing = shown ? "ease-out" : "ease-in";
   const filledCount = Math.min(count, MAX_PLAYS);
   const isEmpty = count === 0;
+
+  const soilW = MAX_PLAYS * ICON + (MAX_PLAYS - 1) * GAP;
 
   return (
     <div
@@ -69,70 +45,59 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         pointerEvents: "none",
       }}
     >
-      {/* Garden patch */}
-      <div style={{ position: "relative", width: GARDEN_W, height: SOIL_TOP + SOIL_H + 2 }}>
-
-        {/* Carrots — render first so soil draws over their buried bottoms */}
-        {GARDEN_SLOTS.map(({ cx, top, rot }, i) => {
+      {/* Carrot tops — each icon clipped to show leaves + hint of orange */}
+      <div style={{ display: "flex", gap: GAP, alignItems: "flex-end" }}>
+        {Array.from({ length: MAX_PLAYS }).map((_, i) => {
           const filled = i < filledCount;
           return (
             <div
               key={i}
               style={{
-                position: "absolute",
-                left: cx - CARROT_W / 2,
-                top,
-                transform: `rotate(${rot}deg)`,
+                transform: `rotate(${ROTATIONS[i]}deg)`,
                 transformOrigin: "50% 100%",
+                flexShrink: 0,
               }}
             >
-              <CarrotSvg opacity={filled ? 1 : 0.18} />
+              {/* clip window — hides the pointed tip below */}
+              <div style={{ width: ICON, height: CLIP, overflow: "hidden" }}>
+                {filled ? (
+                  <PiCarrotFill
+                    aria-hidden="true"
+                    style={{
+                      width: ICON,
+                      height: ICON,
+                      color: "#E07030",
+                      display: "block",
+                      filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.18))",
+                    }}
+                  />
+                ) : (
+                  <PiCarrotDuotone
+                    aria-hidden="true"
+                    style={{
+                      width: ICON,
+                      height: ICON,
+                      color: "rgba(61,53,43,0.28)",
+                      display: "block",
+                    }}
+                  />
+                )}
+              </div>
             </div>
           );
         })}
 
-        {/* Soil strip — renders over carrot bases to look planted */}
-        <svg
-          aria-hidden="true"
-          width={GARDEN_W}
-          height={SOIL_H + 2}
-          style={{
-            position: "absolute",
-            left: 0,
-            top: SOIL_TOP,
-            transform: "rotate(-0.8deg)",
-            transformOrigin: "left center",
-            overflow: "visible",
-          }}
-        >
-          {/* Wavy soil top edge */}
-          <path
-            d={`M0,4 Q19,1 38,4 Q57,7 76,3 Q95,0 114,3 Q133,6 152,3 L152,${SOIL_H + 2} L0,${SOIL_H + 2} Z`}
-            fill="#A0826D"
-          />
-          {/* Holes for used/empty slots */}
-          {GARDEN_SLOTS.map(({ cx }, i) => {
-            const filled = i < filledCount;
-            return !filled ? (
-              <ellipse key={i} cx={cx} cy={3.5} rx={4.5} ry={2} fill="#6B4F35" opacity={0.55} />
-            ) : null;
-          })}
-        </svg>
-
-        {/* High-count badge */}
         {count > MAX_PLAYS && (
           <span
             aria-hidden="true"
             style={{
-              position: "absolute",
-              right: -2,
-              top: SOIL_TOP - 2,
               fontFamily: "var(--font-handwritten), cursive",
-              fontSize: "0.78rem",
+              fontSize: "0.82rem",
               fontWeight: 700,
               color: "var(--color-walnut)",
               opacity: 0.65,
-              lineHeight: 1,
+              alignSelf: "flex-end",
+              marginBottom: 3,
             }}
           >
             +{count - MAX_PLAYS}
@@ -140,22 +105,34 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         )}
       </div>
 
+      {/* Soil strip */}
+      <div
+        aria-hidden="true"
+        style={{
+          width: soilW,
+          height: 9,
+          background: "linear-gradient(to bottom, #B8926A, #9A7355)",
+          borderRadius: "2px 2px 5px 5px",
+          boxShadow: "0 2px 5px rgba(61,43,20,0.22)",
+        }}
+      />
+
       {/* Handwritten label */}
       <span
         aria-hidden="true"
         style={{
           display: "block",
-          fontFamily: "var(--font-handwritten), cursive",
-          fontSize: "0.78rem",
-          fontWeight: 500,
+          fontFamily: "var(--font-reenie-beanie), cursive",
+          fontSize: "1rem",
+          fontWeight: 400,
           color: "var(--color-walnut)",
-          opacity: isEmpty ? 0.4 : 0.58,
+          opacity: isEmpty ? 0.38 : 0.55,
           lineHeight: 1,
-          marginTop: 5,
-          paddingLeft: 2,
+          marginTop: 4,
+          paddingLeft: 1,
         }}
       >
-        {isEmpty ? "empty patch" : "plays"}
+        {isEmpty ? "no plays!" : "plays"}
       </span>
     </div>
   );
