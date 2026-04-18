@@ -10,10 +10,10 @@
  */
 
 @theme {
-  /* Teal-sage — primary brand. Warm teal with a green lean, not sterile. */
-  --color-sage:       #6bbdaa;
-  --color-sage-tint:  #d8f0eb;
-  --color-sage-deep:  #3d7068;
+  /* Sage — primary brand. */
+  --color-sage:       #a8c5a0;
+  --color-sage-tint:  #e4f0e2;
+  --color-sage-deep:  #4e7048;
 
   /* Seafoam — completed / done. Deeper, richer than sage. */
   --color-moss:       #5aac8c;
