@@ -7,10 +7,12 @@ import { CalendarPopover } from "./CalendarPopover";
 import { DaySelector } from "./DaySelector";
 import { TodoItem } from "./TodoItem";
 import { StatusBuckets } from "./StatusBuckets";
+import { useIsFlipping } from "./JournalShell";
 
 export function TodoList() {
   const todos = useTodos((s) => s.todos);
   const selected = useTodos((s) => s.selectedDate);
+  const isFlipping = useIsFlipping();
 
   const allOverdue = todos.filter(isOverdue).sort(sortByDateThenTime);
   const dayTodos = todos.filter((t) => t.dueDate === selected);
@@ -23,7 +25,7 @@ export function TodoList() {
     allOverdue.length === 0 && pending.length === 0 && done.length === 0;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className={`flex h-full flex-col transition-opacity duration-200 ${isFlipping ? "opacity-0" : ""}`}>
       <header className="flex items-center justify-between gap-3 px-4 pt-4 md:px-6 md:pt-6">
         <span
           className="text-4xl leading-none text-ink select-none"

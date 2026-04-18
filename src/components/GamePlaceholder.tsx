@@ -8,7 +8,7 @@ export function GamePlaceholder() {
   const isFlipping = useIsFlipping();
 
   return (
-    <div className={`flex h-full flex-col ${isFlipping ? "bg-card" : "bg-honey-tint"}`}>
+    <div className={`flex h-full flex-col ${isFlipping ? "" : "bg-honey-tint"}`}>
       <header className="flex items-center justify-start px-4 pt-4 md:px-6 md:pt-6">
         <button
           onClick={() => flipTo("/")}
