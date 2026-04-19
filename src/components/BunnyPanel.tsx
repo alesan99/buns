@@ -344,7 +344,11 @@ export function BunnyPanel() {
 
   const [notesShown, setNotesShown] = useState(true);
   const [bunnyHovered, setBunnyHovered] = useState(false);
-  const [currentThought, setCurrentThought] = useState(() => pickThought("happy"));
+  const [currentThought, setCurrentThought] = useState("");
+
+  useEffect(() => {
+    setCurrentThought(pickThought("happy"));
+  }, []);
 
   useEffect(() => {
     if (pathname === "/" && !isFlipping) setNotesShown(true);
