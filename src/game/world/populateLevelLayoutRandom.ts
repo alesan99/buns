@@ -94,12 +94,12 @@ export function populateLevelLayoutRandom(
   const warpFreqBottom = 0.2;
   const warpFreqTop    = 1;
 
-  // How many rows back gap enforcement looks. Set this to roughly your
-  // viewport height in tiles — entries older than this are expired so the
-  // Map never grows unbounded over an infinite level.
   const gapWindow = 20;
 
-  // Sliding window: Map instead of a fixed array so entries can be expired.
+  // How many passes before the noise curve resets with a fresh seed.
+  // Prevents the fBM from drifting into degenerate regions over long sessions.
+  const chunkSize = 16;
+
   const topOccupiedRow = new Map<number, number>();
   const getTop = (col: number): number => topOccupiedRow.get(col) ?? floorRow;
 
@@ -109,17 +109,22 @@ export function populateLevelLayoutRandom(
 
   while (row > 2) {
     // ── Expire stale entries ───────────────────────────────────────────────
-    // Any column whose recorded tile is more than gapWindow rows below the
-    // current generation point can't affect gap enforcement anymore, so
-    // delete it to keep the Map from growing forever.
     for (const [col, occupiedRow] of topOccupiedRow) {
       if (occupiedRow > row + gapWindow) {
         topOccupiedRow.delete(col);
       }
     }
 
-    const noiseX = passIndex * 1.8;
-    let centerCol = Math.round(fbm(noiseX, seed) * (width - 1));
+    // ── Chunk re-seeding ───────────────────────────────────────────────────
+    // Every chunkSize passes, derive a fresh seed from the original so the
+    // noise curve resets. localPass resets the sampling position back to 0
+    // so we always sample the well-behaved early part of the curve.
+    const chunkIndex = Math.floor(passIndex / chunkSize);
+    const localPass  = passIndex % chunkSize;
+    const chunkSeed  = fract(Math.sin((seed + chunkIndex) * 127.1) * 43758.545) * 1000;
+
+    const noiseX = localPass * 1.8;
+    let centerCol = Math.round(fbm(noiseX, chunkSeed) * (width - 1));
 
     // Force a minimum horizontal distance from the previous platform.
     if (prevCenterCol !== -1) {
@@ -133,22 +138,20 @@ export function populateLevelLayoutRandom(
 
     prevCenterCol = centerCol;
 
-    // heightT: 0.0 at the floor, 1.0 at the top of the level.
     const heightT = 1 - (row / floorRow);
 
-    // All per-pass parameters scale with heightT.
-    const hSigma         = lerp(hSigmaBottom,       hSigmaTop,       heightT);
-    const hThreshold     = lerp(hThresholdBottom,   hThresholdTop - 0.05, heightT);
+    const hSigma         = lerp(hSigmaBottom,     hSigmaTop,           heightT);
+    const hThreshold     = lerp(hThresholdBottom, hThresholdTop - 0.05, heightT);
     const maxThickness   = Math.round(lerp(maxThicknessBottom, maxThicknessTop, heightT));
-    const vSigma         = lerp(vSigmaBottom,       vSigmaTop,       heightT);
-    const surfaceWarpAmp = lerp(warpAmpBottom,       warpAmpTop,      heightT);
-    const warpFreq       = lerp(warpFreqBottom,      warpFreqTop,     heightT);
+    const vSigma         = lerp(vSigmaBottom,     vSigmaTop,           heightT);
+    const surfaceWarpAmp = lerp(warpAmpBottom,     warpAmpTop,          heightT);
+    const warpFreq       = lerp(warpFreqBottom,    warpFreqTop,         heightT);
 
     const collectibleCol = centerCol;
     let collectibleRow = row - 1;
 
     for (let col = 0; col < width; col += 1) {
-      const warp = fbm(col * 0.8, seed) * 2 - 1;
+      const warp = fbm(col * 0.8, chunkSeed) * 2 - 1;
       const warpedCol = col + warp * 3;
       const hWeight = gaussian(warpedCol - centerCol, hSigma);
       if (hWeight < hThreshold) continue;
@@ -160,7 +163,7 @@ export function populateLevelLayoutRandom(
         Math.round(maxThickness * thicknessCurve + maxThickness * 0.3 * centerBias),
       );
 
-      const warpNoise = fbm(col * warpFreq, seed + passIndex * 17);
+      const warpNoise = fbm(col * warpFreq, chunkSeed + passIndex * 17);
       const warpOffset = Math.round((warpNoise - 0.5) * 2 * surfaceWarpAmp);
       const surfaceRow = row + warpOffset;
 
@@ -171,7 +174,6 @@ export function populateLevelLayoutRandom(
         const vWeight = gaussian(depth, vSigma);
         if (vWeight < 0.2) continue;
 
-        // ── Gap enforcement ──────────────────────────────────────────────
         if (tileRow >= getTop(col) - 1) continue;
 
         const tile = randInt(rng, 1, 3);
@@ -183,7 +185,7 @@ export function populateLevelLayoutRandom(
       }
 
       if (col === centerCol) {
-        const colWarp = Math.round((fbm(col * warpFreq, seed + passIndex * 17) - 0.5) * 2 * surfaceWarpAmp);
+        const colWarp = Math.round((fbm(col * warpFreq, chunkSeed + passIndex * 17) - 0.5) * 2 * surfaceWarpAmp);
         collectibleRow = row + colWarp - 1;
       }
     }
@@ -196,7 +198,7 @@ export function populateLevelLayoutRandom(
     }
 
     // ── Vertical step ─────────────────────────────────────────────────────
-    const stepNoise = fbm(noiseX + 99, seed);
+    const stepNoise = fbm(localPass + 99, chunkSeed);
     const topDensityBoost = lerp(1.2, 0.4, heightT);
     const step = Math.max(1, Math.round((2 + stepNoise * 2) * topDensityBoost));
     row -= step;

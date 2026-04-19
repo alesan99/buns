@@ -15,6 +15,43 @@ const DESPAWN_BELOW_TILES = 70;
 const randInt = (rng: () => number, min: number, max: number) =>
   Math.floor(rng() * (max - min + 1)) + min;
 
+// ── Noise helpers ─────────────────────────────────────────────────────────────
+
+function fract(n: number): number {
+  return n - Math.floor(n);
+}
+
+function valueNoise(x: number, seed: number): number {
+  const xi = Math.floor(x);
+  const xf = x - xi;
+  const h0 = fract(Math.sin((xi + seed) * 127.1) * 43758.545);
+  const h1 = fract(Math.sin((xi + 1 + seed) * 127.1) * 43758.545);
+  const t = xf * xf * (3 - 2 * xf);
+  return h0 + (h1 - h0) * t;
+}
+
+function fbm(x: number, seed: number, octaves = 3): number {
+  let value = 0;
+  let amplitude = 0.5;
+  let frequency = 1.0;
+  for (let i = 0; i < octaves; i++) {
+    value += amplitude * valueNoise(x * frequency, seed + i * 31);
+    amplitude *= 0.5;
+    frequency *= 2.0;
+  }
+  return value;
+}
+
+function gaussian(distance: number, sigma: number): number {
+  return Math.exp(-(distance * distance) / (2 * sigma * sigma));
+}
+
+// Derive a deterministic seed for a given chunk index so each chunk gets
+// a fresh noise curve that can never degenerate over long play sessions.
+function chunkSeed(baseSeed: number, chunkIndex: number): number {
+  return fract(Math.sin((baseSeed + chunkIndex * 127.1) * 43758.545)) * 1000;
+}
+
 export class TiledWorld {
   private readonly tileObjects: TileObject[] = [];
   readonly solidTiles: Phaser.Physics.Arcade.StaticGroup;
@@ -25,6 +62,13 @@ export class TiledWorld {
   private minGeneratedRow = 0;
   private readonly maxGeneratedRow: number;
   spawnPoint = { x: 0, y: 0 };
+
+  // Stable base seed for the whole session — all chunk seeds derive from this.
+  private readonly baseSeed: number = Math.random() * 1000;
+
+  // Tracks the topmost occupied row per column across chunks so gap
+  // enforcement works across chunk boundaries. Expired lazily per chunk.
+  private readonly topOccupiedRow = new Map<number, number>();
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -100,24 +144,112 @@ export class TiledWorld {
   }
 
   private generateRowsAbove(startRowInclusive: number, endRowInclusive: number) {
-    for (let row = startRowInclusive; row <= endRowInclusive; row += 1) {
-      const width = this.worldWidthPx / this.tileSize;
-      const platformCount = randInt(Math.random, 1, 2);
+    const width = Math.floor(this.worldWidthPx / this.tileSize);
 
-      for (let i = 0; i < platformCount; i += 1) {
-        const length = randInt(Math.random, 3, 6);
-        const startCol = randInt(Math.random, 0, Math.max(0, width - length));
-        const tileId = randInt(Math.random, 1, 3);
+    // Each call gets its own seed derived from its absolute row position so
+    // the same chunk always produces the same tiles (deterministic), and
+    // different chunks always produce different noise curves (no degeneration).
+    const chunkIndex = Math.abs(Math.floor(startRowInclusive / CHUNK_HEIGHT));
+    const seed = chunkSeed(this.baseSeed, chunkIndex);
 
-        for (let col = startCol; col < startCol + length; col += 1) {
-          this.createTile(row, col, tileId);
-        }
+    // Expire topOccupiedRow entries that are too far below this chunk to matter.
+    const gapWindow = CHUNK_HEIGHT * 2;
+    for (const [col, occupiedRow] of this.topOccupiedRow) {
+      if (occupiedRow > endRowInclusive + gapWindow) {
+        this.topOccupiedRow.delete(col);
+      }
+    }
 
-        if (Math.random() < 0.35) {
-          const collectibleCol = startCol + Math.floor(length / 2);
-          this.createCollectible(row - 1, collectibleCol);
+    const getTop = (col: number): number =>
+      this.topOccupiedRow.get(col) ?? endRowInclusive + 1;
+
+    // ── Tuning ──────────────────────────────────────────────────────────────
+    const hSigma         = width * 0.09;
+    const hThreshold     = 0.35;
+    const maxThickness   = 4;
+    const vSigma         = 5;
+    const warpAmp        = 4;
+    const warpFreq       = 0.3;
+    const collectibleChance = 0.4;
+
+    // Walk upward through the chunk placing one platform per pass.
+    // Step size is fBM-modulated so spacing is organic, not uniform.
+    let row = endRowInclusive - 2;
+    let passIndex = 0;
+    let prevCenterCol = -1;
+
+    while (row >= startRowInclusive) {
+      const noiseX = passIndex * 1.8;
+
+      // centerCol from fBM — well-behaved because noiseX never exceeds
+      // chunkSize * 1.8 before the seed resets on the next chunk.
+      let centerCol = Math.round(fbm(noiseX, seed) * (width - 1));
+
+      // Enforce minimum horizontal distance from previous platform.
+      if (prevCenterCol !== -1) {
+        const minOffset = Math.floor(width * 0.25);
+        if (Math.abs(centerCol - prevCenterCol) < minOffset) {
+          centerCol = prevCenterCol > width / 2
+            ? randInt(Math.random, 0, Math.floor(width * 0.4))
+            : randInt(Math.random, Math.floor(width * 0.6), width - 1);
         }
       }
+
+      prevCenterCol = centerCol;
+      const platformTile = randInt(Math.random, 1, 3);
+      let collectibleRow = row - 1;
+
+      for (let col = 0; col < width; col += 1) {
+        // Horizontal Gaussian with fBM-warped column position.
+        const colWarp = fbm(col * 0.8, seed) * 2 - 1;
+        const warpedCol = col + colWarp * 3;
+        const hWeight = gaussian(warpedCol - centerCol, hSigma);
+        if (hWeight < hThreshold) continue;
+
+        // Round cross-section: edge columns are thinner than the center.
+        const colThickness = Math.max(
+          1,
+          Math.round(maxThickness * Math.pow(hWeight, 0.5) + maxThickness * 0.3 * Math.pow(hWeight, 1.5)),
+        );
+
+        // Surface warp: slightly uneven roofline.
+        const warpNoise = fbm(col * warpFreq, seed + passIndex * 17);
+        const warpOffset = Math.round((warpNoise - 0.5) * 2 * warpAmp);
+        const surfaceRow = row + warpOffset;
+
+        for (let depth = 0; depth < colThickness; depth += 1) {
+          const tileRow = surfaceRow + depth;
+          if (tileRow > endRowInclusive || tileRow < startRowInclusive) continue;
+
+          const vWeight = gaussian(depth, vSigma);
+          if (vWeight < 0.2) continue;
+
+          // Gap enforcement: at least 1 empty row between platforms.
+          if (tileRow >= getTop(col) - 1) continue;
+
+          this.createTile(tileRow, col, platformTile);
+
+          if (tileRow < getTop(col)) {
+            this.topOccupiedRow.set(col, tileRow);
+          }
+        }
+
+        if (col === centerCol) {
+          const cWarp = Math.round((fbm(col * warpFreq, seed + passIndex * 17) - 0.5) * 2 * warpAmp);
+          collectibleRow = row + cWarp - 1;
+        }
+      }
+
+      // Collectible above platform peak.
+      if (collectibleRow >= startRowInclusive && Math.random() < collectibleChance) {
+        this.createCollectible(collectibleRow, centerCol);
+      }
+
+      // fBM-modulated vertical step — organic spacing, never degenerates.
+      const stepNoise = fbm(noiseX + 99, seed);
+      const step = Math.max(2, Math.round(2 + stepNoise * 2));
+      row -= step;
+      passIndex += 1;
     }
   }
 
