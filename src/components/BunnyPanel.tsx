@@ -251,34 +251,16 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
 function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   const [hovered, setHovered] = useState(false);
   const lifted = hovered && !disabled;
-  const size = lifted ? 108 : 90;
+  const size = lifted ? 118 : 96;
 
   return (
-    <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 160, height: 160 }}>
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: size,
-          height: size,
-          clipPath: "polygon(0 0, 100% 100%, 0 100%)",
-          background:
-            "linear-gradient(225deg, rgba(44,36,32,0) 40%, rgba(44,36,32,0.32) 50%, rgba(44,36,32,0.14) 62%, rgba(44,36,32,0) 80%)",
-          filter: "blur(2px)",
-          transform: lifted ? "translate(-4px, 4px)" : "translate(-3px, 3px)",
-          transition: "all 0.25s ease",
-          opacity: disabled ? 0.35 : 1,
-          pointerEvents: "none",
-        }}
-      />
+    <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 170, height: 170 }}>
       <div
         aria-hidden
         style={{
           position: "absolute",
           fontFamily: "var(--font-logo), cursive",
-          fontSize: "1.1rem",
+          fontSize: lifted ? "1.2rem" : "1.1rem",
           color: "var(--color-ink-muted)",
           top: Math.round(size * 0.4),
           right: Math.round(size * 0.55),
@@ -286,8 +268,8 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           transform: "rotate(40deg)",
           transformOrigin: "top right",
           lineHeight: 1.15,
-          opacity: disabled ? 0.35 : 0.75,
-          transition: "top 0.25s ease, right 0.25s ease, opacity 0.2s",
+          opacity: disabled ? 0.35 : 0.9,
+          transition: "top 0.25s ease, right 0.25s ease, font-size 0.25s ease, opacity 0.2s",
           whiteSpace: "nowrap",
           pointerEvents: "none",
           zIndex: 1,
@@ -308,14 +290,15 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           width: size,
           height: size,
           clipPath: "polygon(100% 0, 100% 100%, 0 0)",
-          background:
-            "linear-gradient(225deg, var(--color-paper) 0%, var(--color-cream) 26%, var(--color-oat) 44%, #d8c0ae 50%)",
+          background: lifted
+            ? "radial-gradient(circle at 100% 0%, #ffffff 0%, var(--color-paper) 35%, var(--color-cream) 75%, var(--color-oat) 100%)"
+            : "radial-gradient(circle at 100% 0%, var(--color-paper) 0%, var(--color-cream) 55%, var(--color-oat) 100%)",
           border: "none",
           padding: 0,
           cursor: disabled ? "not-allowed" : "pointer",
-          filter: `drop-shadow(1px 1px ${lifted ? 3 : 2}px rgba(44,36,32,${lifted ? 0.22 : 0.16}))`,
+          filter: `drop-shadow(${lifted ? "2px 4px 8px" : "1px 2px 4px"} rgba(44,36,32,${lifted ? 0.22 : 0.14}))`,
           transition: "all 0.25s ease",
-          opacity: disabled ? 0.4 : 1,
+          opacity: disabled ? 0.45 : 1,
           pointerEvents: "auto",
         }}
       />
@@ -369,7 +352,7 @@ export function BunnyPanel() {
     setBunnyHovered(false);
   };
 
-  const sceneSrc = overdueCount > 0 ? "/backrooms.png" : "/meadow.png";
+  const sceneSrc = overdueCount >= 3 ? "/backrooms.png" : "/meadow.png";
 
   return (
     <div
