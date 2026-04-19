@@ -58,12 +58,12 @@ export function setupCamera(
 
     if (autoScrollStarted) {
       const climbProgress = clamp(1 - targetObject.y / Math.max(1, worldHeight), 0, 1);
-      const acceleratedProgress = Math.pow(climbProgress, 3.4);
-      const baseAutoScrollSpeed = tileSize * 0.60;
+      const linearProgress = climbProgress/10;
+      const baseAutoScrollSpeed = tileSize * 0.45;
       const maxExtraAutoScrollSpeed = tileSize * 3.0;
-      const maxAutoScrollSpeed = tileSize * 8.0;
+      const maxAutoScrollSpeed = tileSize * 6.0;
       const autoScrollSpeed = Math.min(
-        baseAutoScrollSpeed + maxExtraAutoScrollSpeed * acceleratedProgress,
+        baseAutoScrollSpeed + maxExtraAutoScrollSpeed * linearProgress,
         maxAutoScrollSpeed,
       );
       camera.scrollY -= autoScrollSpeed * dt;
