@@ -50,6 +50,9 @@ function lerp(a: number, b: number, t: number): number {
 export function populateLevelLayoutRandom(
   layout: LevelGrid,
   rng: () => number = Math.random,
+  options?: {
+    forcedTileId?: number;
+  },
 ): LevelGrid {
   const height = layout.height;
   const width = layout.width;
@@ -176,7 +179,7 @@ export function populateLevelLayoutRandom(
 
         if (tileRow >= getTop(col) - 1) continue;
 
-        const tile = randInt(rng, 1, 3);
+        const tile = options?.forcedTileId ?? randInt(rng, 1, 3);
         layout.setTile(tileRow, col, tile);
 
         if (tileRow < getTop(col)) {
