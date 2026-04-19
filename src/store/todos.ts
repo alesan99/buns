@@ -2,6 +2,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { todayIso } from "@/lib/date";
 
+const PLAYS_REMAINING_KEY = "bunny-plays-remaining";
+const USER_STATS_CHANGED_EVENT = "bunny-user-stats-changed";
+const MAX_PLAYS = 10;
+
 export type Todo = {
   id: string;
   title: string;
@@ -38,6 +42,18 @@ function newId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function adjustPlaysRemaining(delta: number) {
+  if (typeof window === "undefined" || delta === 0) return;
+
+  const raw = localStorage.getItem(PLAYS_REMAINING_KEY);
+  const parsed = raw ? parseInt(raw, 10) : NaN;
+  const current = Number.isFinite(parsed) ? parsed : 3;
+  const next = Math.max(0, Math.min(MAX_PLAYS, current + delta));
+
+  localStorage.setItem(PLAYS_REMAINING_KEY, String(next));
+  window.dispatchEvent(new Event(USER_STATS_CHANGED_EVENT));
+}
+
 export const useTodos = create<TodosState>()(
   persist(
     (set) => ({
@@ -62,18 +78,26 @@ export const useTodos = create<TodosState>()(
           ],
         })),
 
-      toggleTodo: (id) =>
+      toggleTodo: (id) => {
+        let playDelta = 0;
+
         set((state) => ({
-          todos: state.todos.map((t) =>
-            t.id === id
-              ? {
-                  ...t,
-                  completed: !t.completed,
-                  completedAt: !t.completed ? new Date().toISOString() : undefined,
-                }
-              : t,
-          ),
-        })),
+          todos: state.todos.map((t) => {
+            if (t.id !== id) return t;
+
+            const nextCompleted = !t.completed;
+            playDelta = nextCompleted ? 1 : -1;
+
+            return {
+              ...t,
+              completed: nextCompleted,
+              completedAt: nextCompleted ? new Date().toISOString() : undefined,
+            };
+          }),
+        }));
+
+        adjustPlaysRemaining(playDelta);
+      },
 
       deleteTodo: (id) =>
         set((state) => ({ todos: state.todos.filter((t) => t.id !== id) })),

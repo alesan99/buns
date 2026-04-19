@@ -7,6 +7,7 @@ export const PLAYS_REMAINING_KEY = "bunny-plays-remaining";
 export const CAFFEINE_LEVEL_KEY = "bunny-caffeine-level";
 export const CAFFEINE_PROGRESS_KEY = "bunny-caffeine-progress";
 export const USER_STATS_CHANGED_EVENT = "bunny-user-stats-changed";
+export const MAX_PLAYS = 10;
 
 const CAFFEINE_TO_NEXT_LEVEL_BASE = 5;
 const CAFFEINE_TO_NEXT_LEVEL_STEP = 2;
@@ -32,6 +33,10 @@ function readNumber(key: string, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function clampPlays(value: number) {
+  return Math.max(0, Math.min(MAX_PLAYS, value));
+}
+
 function getCaffeineToNextLevel(level: number) {
   return CAFFEINE_TO_NEXT_LEVEL_BASE + Math.max(0, level - 1) * CAFFEINE_TO_NEXT_LEVEL_STEP;
 }
@@ -39,7 +44,7 @@ function getCaffeineToNextLevel(level: number) {
 function readUserStats(): UserStatsSnapshot {
   return {
     backroomsVisits: readNumber(BACKROOMS_VISITS_KEY, 0),
-    playsRemaining: readNumber(PLAYS_REMAINING_KEY, 3),
+    playsRemaining: clampPlays(readNumber(PLAYS_REMAINING_KEY, 3)),
     caffeineLevel: readNumber(CAFFEINE_LEVEL_KEY, 1),
     caffeineProgress: readNumber(CAFFEINE_PROGRESS_KEY, 0),
   };
@@ -49,7 +54,7 @@ function persistUserStats(stats: UserStatsSnapshot) {
   if (typeof window === "undefined") return;
 
   localStorage.setItem(BACKROOMS_VISITS_KEY, String(stats.backroomsVisits));
-  localStorage.setItem(PLAYS_REMAINING_KEY, String(stats.playsRemaining));
+  localStorage.setItem(PLAYS_REMAINING_KEY, String(clampPlays(stats.playsRemaining)));
   localStorage.setItem(CAFFEINE_LEVEL_KEY, String(stats.caffeineLevel));
   localStorage.setItem(CAFFEINE_PROGRESS_KEY, String(stats.caffeineProgress));
   window.dispatchEvent(new Event(USER_STATS_CHANGED_EVENT));

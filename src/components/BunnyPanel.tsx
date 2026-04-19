@@ -9,7 +9,7 @@ import { isOverdue } from "@/lib/date";
 import { useTodos } from "@/store/todos";
 import { useUserStats } from "@/hooks/useUserStats";
 
-const MAX_PLAYS = 5;
+const MAX_PLAYS = 10;
 const ICON = 34;          // full icon render size
 const CLIP = 20;          // px to show — leaves + top of orange body
 const ROTATIONS = [-8, 4, -5, 9, -3];   // each unique so none are parallel
