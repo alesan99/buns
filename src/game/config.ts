@@ -1,6 +1,6 @@
 export const TILE_SIZE = 48;
 export const WORLD_WIDTH_TILES = 14;
-export const WORLD_HEIGHT_TILES = 72;
+export const WORLD_HEIGHT_TILES = 30;
 export const CAMERA_VISIBLE_TILES_ACROSS = 14;
 
 export const TILE_EMPTY = 0;

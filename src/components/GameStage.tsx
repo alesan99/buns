@@ -81,7 +81,7 @@ export function GameStage() {
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6 transition-opacity duration-500"
-          style={{ opacity: hasPlays ? (cameraStartedMoving ? 0 : 1) : 1 }}
+          style={{ opacity: cameraStartedMoving ? 0 : 1 }}
         >
           {hasPlays ? (
             <div className="flex max-w-[80vw] flex-wrap items-center justify-center gap-1 rounded-full bg-paper/90 px-4 py-2 shadow-lg ring-1 ring-divider">
