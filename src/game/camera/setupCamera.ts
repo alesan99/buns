@@ -20,6 +20,8 @@ export function setupCamera(
   const startY = targetObject.y;
   let autoScrollStarted = false;
 
+  const hasStartedAutoScroll = () => autoScrollStarted;
+
   const applyViewportAndZoom = () => {
     camera.setViewport(0, 0, scene.scale.width, scene.scale.height);
     const targetWorldWidth = tileSize * tilesAcross;
@@ -96,5 +98,8 @@ export function setupCamera(
     scene.scale.off("resize", applyViewportAndZoom);
   });
 
-  return updateCamera;
+  return {
+    updateCamera,
+    hasStartedAutoScroll,
+  };
 }
