@@ -207,7 +207,7 @@ export function BunnyPanel() {
   const pathname = usePathname();
   const onGame = pathname === "/game";
   const isFlipping = useIsFlipping();
-  const { playsRemaining } = useUserStats();
+  const { playsRemaining, level, caffeineProgress, caffeineToNextLevel } = useUserStats();
 
   const [notesShown, setNotesShown] = useState(true);
 
@@ -242,6 +242,14 @@ export function BunnyPanel() {
       <div aria-hidden className="h-20 shrink-0" />
 
       {/* Bunny cutout — inset shadow on todo page, flat on game page */}
+      <div
+        aria-hidden
+        className="rounded-full bg-paper/90 px-4 py-1 text-xs font-semibold text-ink shadow-sm"
+        style={{ fontFamily: "var(--font-gluten), cursive" }}
+      >
+        caffeine lv {level} · {caffeineProgress}/{caffeineToNextLevel}
+      </div>
+
       <div
         className="relative flex aspect-square w-72 items-center justify-center rounded-2xl md:w-80 lg:w-96 bg-honey-tint"
         style={
