@@ -3,7 +3,6 @@ import {
   OBJECT_NONE,
   OBJECT_SPAWN,
   type LevelGrid,
-  TILE_SOLID,
 } from "@/game/config";
 
 const randInt = (rng: () => number, min: number, max: number) =>
@@ -159,7 +158,7 @@ export function populateLevelLayoutRandom(
 
         // ── Gap enforcement ──────────────────────────────────────────────
         if (tileRow >= topOccupiedRow[col] - 1) continue;
-        
+
         const tile = randInt(rng, 1, 3);
         layout.setTile(tileRow, col, tile);
 
