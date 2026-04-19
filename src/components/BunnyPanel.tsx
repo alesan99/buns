@@ -10,10 +10,138 @@ import { useTodos } from "@/store/todos";
 import { useUserStats } from "@/hooks/useUserStats";
 
 const MAX_PLAYS = 10;
-const ICON = 34;          // full icon render size
-const CLIP = 20;          // px to show — leaves + top of orange body
-const ROTATIONS = [-8, 4, -5, 9, -3];   // each unique so none are parallel
+const ICON = 34;
+const CLIP = 20;
+const ROTATIONS = [-8, 4, -5, 9, -3];
 const GAP = 5;
+
+// ── Thought bubble dialogue ───────────────────────────────────────────────────
+
+type MentalState = "happy" | "tweaking" | "insane";
+
+const THOUGHTS: Record<MentalState, string[]> = {
+  happy: [
+    "yippee! no overdue tasks! you got this :)",
+    "you’re cooking queen, keep up the great work",
+    "it’s not joever until it’s joever. never lose jope",
+    "i love frolicking in the meadow",
+    "live laugh love",
+    "i love coffee :)"
+  ],
+  tweaking: [
+    "don’t talk to me until i’ve had my coffee.",
+    "you better get on top of that bro…",
+    "overdue tasks? in this economy? smh my head",
+    "quit looking at my thoughts and get your ass to work",
+    "i’m genuinely tweaking out",
+    "ok ok ok ok ok ok",
+    "fuck it, we ball"
+  ],
+  insane: [
+    "THEY'RE ALL DUE YESTERDAY",
+    "i haven't slept since tuesday",
+    "what even is time",
+    "i’m actually going to do it",
+    "i am lowkirkenuinely going insane",
+    "atp it might be time to think about dropping out dawg",
+    "it’s over"
+  ],
+};
+
+function pickThought(state: MentalState): string {
+  const pool = THOUGHTS[state];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ── Hand-drawn thought bubble ─────────────────────────────────────────────────
+// Uses the PNG as a background frame. Text is absolutely centred in the upper
+// ~70% of the image (the cloud body), leaving the tail dots below untouched.
+
+function ThoughtBubble({
+  text,
+  visible,
+  state,
+}: {
+  text: string;
+  visible: boolean;
+  state: MentalState;
+}) {
+  // Tint the PNG for each state using CSS hue-rotate + sepia so it still
+  // reads as hand-drawn but has a colour personality per mood.
+  const tints: Record<MentalState, string> = {
+    happy:   "sepia(0.2) hue-rotate(0deg) saturate(1)",
+    tweaking:"sepia(0.5) hue-rotate(-20deg) saturate(2)",
+    insane:  "sepia(0.6) hue-rotate(280deg) saturate(2.5)",
+  };
+
+  const textColors: Record<MentalState, string> = {
+    happy:   "#5a3e1b",
+    tweaking:"#7a3010",
+    insane:  "#72243e",
+  };
+
+  return (
+    <div
+      aria-live="polite"
+      style={{
+        position: "absolute",
+        // Sit above the bunny box; tail of the PNG points downward toward bunny
+        bottom: "calc(100% - 10px)",
+        left: "50%",
+        transform: `translateX(-50%) scale(${visible ? 1 : 0.9})`,
+        transformOrigin: "bottom center",
+        pointerEvents: "none",
+        zIndex: 30,
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.18s ease, transform 0.18s ease",
+        // Size the container to the PNG's natural aspect ratio (~1.18 : 1 w:h)
+        width: 260,
+        height: 220,
+      }}
+    >
+      {/* Hand-drawn bubble PNG — fills the container, tinted per state */}
+      <img
+        src="/thought-bubble.png"
+        alt=""
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "fill",
+          filter: tints[state],
+          userSelect: "none",
+        }}
+      />
+
+      {/* Text sits in the cloud body — upper 68% of the image, with side padding
+          to stay inside the lobed edges */}
+      <div
+        style={{
+          position: "absolute",
+          top: "8%",
+          left: "12%",
+          right: "12%",
+          height: "62%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          fontFamily: "var(--font-gluten), cursive",
+          fontSize: "1rem",
+          lineHeight: 1.4,
+          color: textColors[state],
+          padding: "0 4px",
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}
+
+// ── Supporting components (unchanged) ────────────────────────────────────────
 
 function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -27,7 +155,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
   const easing = shown ? "ease-out" : "ease-in";
   const filledCount = Math.min(count, MAX_PLAYS);
   const isEmpty = count === 0;
-
   const soilW = MAX_PLAYS * ICON + (MAX_PLAYS - 1) * GAP;
 
   return (
@@ -47,7 +174,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         pointerEvents: "none",
       }}
     >
-      {/* Carrot tops — each icon clipped to show leaves + hint of orange */}
       <div style={{ display: "flex", gap: GAP, alignItems: "flex-end" }}>
         {Array.from({ length: MAX_PLAYS }).map((_, i) => {
           const filled = i < filledCount;
@@ -60,7 +186,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
                 flexShrink: 0,
               }}
             >
-              {/* clip window — hides the pointed tip below */}
               <div style={{ width: ICON, height: CLIP, overflow: "hidden" }}>
                 {filled ? (
                   <PiCarrotDuotone
@@ -88,7 +213,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
             </div>
           );
         })}
-
         {count > MAX_PLAYS && (
           <span
             aria-hidden="true"
@@ -106,8 +230,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
           </span>
         )}
       </div>
-
-      {/* Soil strip */}
       <div
         aria-hidden="true"
         style={{
@@ -118,8 +240,6 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
           boxShadow: "0 2px 5px rgba(61,43,20,0.22)",
         }}
       />
-
-      {/* Handwritten label */}
       <span
         aria-hidden="true"
         style={{
@@ -167,7 +287,6 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
       >
         play a game →
       </div>
-
       <div
         aria-hidden
         style={{
@@ -179,7 +298,6 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           pointerEvents: "none",
         }}
       />
-
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -199,10 +317,11 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           pointerEvents: "auto",
         }}
       />
-
     </div>
   );
 }
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function BunnyPanel() {
   const flipTo = useFlipTo();
@@ -212,18 +331,34 @@ export function BunnyPanel() {
   const todos = useTodos((s) => s.todos);
   const { playsRemaining, level, caffeineProgress, caffeineToNextLevel } = useUserStats();
   const overdueCount = todos.filter(isOverdue).length;
-  const bunnyImageSrc = overdueCount >= 3
-    ? "/bunny_lowkirkenuinely.png"
-    : overdueCount >= 1
-      ? "/bunny_tweaking.png"
-      : "/bunny.png";
+
+  const mentalState: MentalState =
+    overdueCount >= 3 ? "insane" : overdueCount >= 1 ? "tweaking" : "happy";
+
+  const bunnyImageSrc =
+    overdueCount >= 3
+      ? "/bunny_lowkirkenuinely.png"
+      : overdueCount >= 1
+        ? "/bunny_tweaking.png"
+        : "/bunny.png";
 
   const [notesShown, setNotesShown] = useState(true);
+  const [bunnyHovered, setBunnyHovered] = useState(false);
+  const [currentThought, setCurrentThought] = useState(() => pickThought("happy"));
 
   useEffect(() => {
     if (pathname === "/" && !isFlipping) setNotesShown(true);
     else if (pathname === "/" && isFlipping) setNotesShown(false);
   }, [pathname, isFlipping]);
+
+  const handleBunnyEnter = () => {
+    setCurrentThought(pickThought(mentalState));
+    setBunnyHovered(true);
+  };
+
+  const handleBunnyLeave = () => {
+    setBunnyHovered(false);
+  };
 
   return (
     <div
@@ -232,7 +367,6 @@ export function BunnyPanel() {
         onGame || isFlipping ? "bg-honey-tint" : "bg-card",
       ].join(" ")}
     >
-      {/* Plays indicator — top-left corner, fades with scrapbook notes */}
       <PlaysIndicator shown={notesShown && !onGame} count={playsRemaining} />
 
       {!onGame && (
@@ -242,15 +376,8 @@ export function BunnyPanel() {
         />
       )}
 
-      {/*
-       * Top spacer — counterbalances the ScrapbookNotes block below the cutout
-       * so that the bunny cutout lands at the same vertical position as in the
-       * original design (cutout + label + button group, centered).
-       * Height ≈ extra height added by the notes vs the original label+button.
-       */}
       <div aria-hidden className="h-20 shrink-0" />
 
-      {/* Bunny cutout — inset shadow on todo page, flat on game page */}
       <div
         aria-hidden
         className="rounded-full bg-paper/90 px-4 py-1 text-xs font-semibold text-ink shadow-sm"
@@ -270,15 +397,22 @@ export function BunnyPanel() {
               }
         }
       >
+        <ThoughtBubble
+          text={currentThought}
+          visible={bunnyHovered && !onGame}
+          state={mentalState}
+        />
+
         <img
           src={bunnyImageSrc}
           alt="Bunny"
           className="w-64 md:w-72 lg:w-80"
-          style={{}}
+          style={{ cursor: "default" }}
+          onMouseEnter={handleBunnyEnter}
+          onMouseLeave={handleBunnyLeave}
         />
       </div>
 
-      {/* Anya label + scrapbook notes — in flex flow so they never overlap Anya */}
       <ScrapbookNotes shown={notesShown && !onGame} />
     </div>
   );
