@@ -124,10 +124,10 @@ export class Player {
       this.godModeEnabled = !this.godModeEnabled;
     }
 
-    if (left && controlsEnabled) {
+    if (left && this.controlsEnabled) {
       this.sprite.setVelocityX(-this.speed);
       this.visual.setFlipX(true);
-    } else if (right && controlsEnabled) {
+    } else if (right && this.controlsEnabled) {
       this.sprite.setVelocityX(this.speed);
       this.visual.setFlipX(false);
     } else {
@@ -163,7 +163,7 @@ export class Player {
       this.extraBoostUsed = false;
     }
 
-    if (jumpJustPressed && isGrounded && controlsEnabled) {
+    if (jumpJustPressed && isGrounded && this.controlsEnabled) {
       this.sprite.setVelocityY(this.jumpVelocity);
       this.jumpSpamArmed = true;
       this.jumpSpamPresses = 0;

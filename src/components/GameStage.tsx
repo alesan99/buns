@@ -99,7 +99,7 @@ export function GameStage() {
                 need plays/carrots
               </p>
               <p className="mt-1 text-xs text-ink-muted">
-                Check off a task to earn a play. Controls are disabled until you do.
+                Earn more carrots by completing tasks to play.
               </p>
             </div>
           )}
