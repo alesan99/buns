@@ -5,15 +5,19 @@ export class Player {
   private readonly visual: Phaser.GameObjects.Sprite;
   private readonly scene: Phaser.Scene;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
+  private readonly godModeKey: Phaser.Input.Keyboard.Key | null;
   private readonly speed = 260;
   private readonly jumpVelocity = -1240;
   private readonly extraJumpVelocity = -1200;
   private readonly jumpCutVelocity = -350;
+  private readonly godModeFloatVelocity = 420;
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;
   private readonly baseVisualScale = 0.20;
   private walkBobTime = 0;
   private previousJumpHeld = false;
+  private previousGodModeToggleHeld = false;
+  private godModeEnabled = false;
   private jumpSpamArmed = false;
   private jumpSpamPresses = 0;
   private extraBoostUsed = false;
@@ -36,6 +40,7 @@ export class Player {
     this.syncVisual(0);
 
     this.cursors = scene.input.keyboard?.createCursorKeys() ?? null;
+    this.godModeKey = scene.input.keyboard?.addKey("ZERO") ?? null;
   }
 
   private triggerExtraJumpBoost() {
@@ -79,6 +84,13 @@ export class Player {
     const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown;
     const jumpJustPressed = jumpHeld && !this.previousJumpHeld;
     this.previousJumpHeld = jumpHeld;
+    const godModeToggleHeld = this.godModeKey?.isDown ?? false;
+    const godModeToggleJustPressed = godModeToggleHeld && !this.previousGodModeToggleHeld;
+    this.previousGodModeToggleHeld = godModeToggleHeld;
+
+    if (godModeToggleJustPressed) {
+      this.godModeEnabled = !this.godModeEnabled;
+    }
 
     if (left) {
       this.sprite.setVelocityX(-this.speed);
@@ -92,6 +104,26 @@ export class Player {
 
     const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
     const isGrounded = body?.blocked?.down ?? false;
+
+    if (body) {
+      body.setAllowGravity(!this.godModeEnabled);
+    }
+
+    if (this.godModeEnabled) {
+      this.jumpSpamArmed = false;
+      this.jumpSpamPresses = 0;
+      this.extraBoostUsed = false;
+
+      if (godModeToggleHeld) {
+        this.sprite.setVelocityY(-this.godModeFloatVelocity);
+      } else {
+        this.sprite.setVelocityY(0);
+      }
+
+      this.visual.play("bun-stand", true);
+      this.syncVisual(0);
+      return;
+    }
 
     if (isGrounded) {
       this.jumpSpamArmed = false;
