@@ -82,15 +82,6 @@ export class Player {
     );
   }
 
-  setDangerMode(enabled: boolean) {
-    if (enabled) {
-      this.visual.setTint(0xff4d4d);
-      return;
-    }
-
-    this.visual.clearTint();
-  }
-
   update() {
     if (!this.cursors) return;
 

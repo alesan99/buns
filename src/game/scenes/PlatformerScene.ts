@@ -10,7 +10,6 @@ import { setupCamera } from "@/game/camera/setupCamera";
 import { TiledWorld } from "@/game/world/TiledWorld";
 import { createPrimitiveTextures } from "@/game/world/createPrimitiveTextures";
 import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRandom";
-import { readOverdueCountFromStorage } from "@/lib/overdue";
 
 export function createPlatformerScene(
   Phaser: typeof import("phaser"),
@@ -49,7 +48,6 @@ export function createPlatformerScene(
     key: "PlatformerScene",
     preload(this: Phaser.Scene) {
       this.load.image("background", "/background.png");
-      this.load.image("backgroundrooms", "/backgroundrooms.png");
       this.load.spritesheet("coffee", "/coffee.png", {
         frameWidth: 64,
         frameHeight: 64,
@@ -65,16 +63,9 @@ export function createPlatformerScene(
       });
     },
     create(this: Phaser.Scene) {
-      const overdueCount = readOverdueCountFromStorage();
-      const hasOverdueTasks = overdueCount >= 1;
-      const isBackroomsOverdueMode = overdueCount >= 3;
       const handleResize = () => resizeBackground(this);
 
-      background = this.add.image(
-        0,
-        0,
-        isBackroomsOverdueMode ? "backgroundrooms" : "background",
-      );
+      background = this.add.image(0, 0, "background");
       resizeBackground(this);
 
       createPrimitiveTextures(this, TILE_SIZE);
@@ -108,16 +99,11 @@ export function createPlatformerScene(
         });
       }
 
-      const levelLayout = populateLevelLayoutRandom(createBaseLevelLayout(), Math.random, {
-        forcedTileId: isBackroomsOverdueMode ? 6 : undefined,
-      });
-      world = new TiledWorld(this, levelLayout, TILE_SIZE, {
-        forcedGeneratedTileId: isBackroomsOverdueMode ? 6 : undefined,
-      });
+      const levelLayout = populateLevelLayoutRandom(createBaseLevelLayout());
+      world = new TiledWorld(this, levelLayout, TILE_SIZE);
       setupPhysicsWorld(this, world.worldWidthPx, world.worldHeightPx);
 
       player = new Player(this, world.spawnPoint.x, world.spawnPoint.y);
-      player.setDangerMode(hasOverdueTasks);
 
       this.physics.add.collider(player.sprite, world.solidTiles);
 

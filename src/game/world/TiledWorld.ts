@@ -74,9 +74,6 @@ export class TiledWorld {
     private readonly scene: Phaser.Scene,
     layout: LevelGrid,
     private readonly tileSize: number,
-    private readonly options?: {
-      forcedGeneratedTileId?: number;
-    },
   ) {
     this.solidTiles = this.scene.physics.add.staticGroup();
     this.collectibleGroup = this.scene.physics.add.group({
@@ -199,7 +196,7 @@ export class TiledWorld {
       }
 
       prevCenterCol = centerCol;
-      const platformTile = this.options?.forcedGeneratedTileId ?? randInt(Math.random, 1, 3);
+      const platformTile = randInt(Math.random, 1, 3);
       let collectibleRow = row - 1;
 
       for (let col = 0; col < width; col += 1) {
