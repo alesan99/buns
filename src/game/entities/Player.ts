@@ -3,15 +3,24 @@ import type * as Phaser from "phaser";
 export class Player {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   private readonly visual: Phaser.GameObjects.Sprite;
+  private readonly scene: Phaser.Scene;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly speed = 260;
   private readonly jumpVelocity = -1240;
+  private readonly extraJumpVelocity = -1200;
   private readonly jumpCutVelocity = -350;
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;
+  private readonly baseVisualScale = 0.20;
   private walkBobTime = 0;
+  private previousJumpHeld = false;
+  private jumpSpamArmed = false;
+  private jumpSpamPresses = 0;
+  private extraBoostUsed = false;
+  private boostStretchTween: Phaser.Tweens.Tween | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
+    this.scene = scene;
     this.sprite = scene.physics.add.sprite(x, y, "bun");
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setOrigin(0.5, 0.5);
@@ -21,12 +30,35 @@ export class Player {
 
     this.visual = scene.add.sprite(x, y, "bun", 0);
     this.visual.setOrigin(0.5, 0.5);
-    this.visual.setScale(0.20);
-	this.visual.setDepth(2);
+    this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
+    this.visual.setDepth(2);
     this.visual.play("bun-stand");
     this.syncVisual(0);
 
     this.cursors = scene.input.keyboard?.createCursorKeys() ?? null;
+  }
+
+  private triggerExtraJumpBoost() {
+    const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
+    if (!body) return;
+
+    body.setVelocityY(Math.min(body.velocity.y, this.extraJumpVelocity));
+
+    if (this.boostStretchTween) {
+      this.boostStretchTween.stop();
+    }
+
+    this.boostStretchTween = this.scene.tweens.add({
+      targets: this.visual,
+      scaleX: this.baseVisualScale * 0.62,
+      scaleY: this.baseVisualScale * 3.02,
+      duration: 90,
+      yoyo: true,
+      ease: "Quad.out",
+      onComplete: () => {
+        this.boostStretchTween = undefined;
+      },
+    });
   }
 
   private syncVisual(bobOffsetY = 0) {
@@ -45,6 +77,8 @@ export class Player {
     const left = this.cursors.left?.isDown;
     const right = this.cursors.right?.isDown;
     const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown;
+    const jumpJustPressed = jumpHeld && !this.previousJumpHeld;
+    this.previousJumpHeld = jumpHeld;
 
     if (left) {
       this.sprite.setVelocityX(-this.speed);
@@ -59,8 +93,25 @@ export class Player {
     const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
     const isGrounded = body?.blocked?.down ?? false;
 
-    if (jumpHeld && isGrounded) {
+    if (isGrounded) {
+      this.jumpSpamArmed = false;
+      this.jumpSpamPresses = 0;
+      this.extraBoostUsed = false;
+    }
+
+    if (jumpJustPressed && isGrounded) {
       this.sprite.setVelocityY(this.jumpVelocity);
+      this.jumpSpamArmed = true;
+      this.jumpSpamPresses = 0;
+      this.extraBoostUsed = false;
+    }
+
+    if (jumpJustPressed && !isGrounded && this.jumpSpamArmed && !this.extraBoostUsed) {
+      this.jumpSpamPresses += 1;
+      if (this.jumpSpamPresses >= 3) {
+        this.extraBoostUsed = true;
+        this.triggerExtraJumpBoost();
+      }
     }
 
     if (!jumpHeld && !isGrounded && body && body.velocity.y < 0) {
@@ -78,6 +129,7 @@ export class Player {
 
     const movingHorizontally = Math.abs(this.sprite.body?.velocity.x ?? 0) > 1;
     if (movingHorizontally) {
+      this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
       const dt = this.sprite.scene.game.loop.delta / 1000;
       this.walkBobTime += dt * 28;
       const bobOffsetY = -Math.abs(Math.sin(this.walkBobTime) * 12);
@@ -87,10 +139,12 @@ export class Player {
       }
     } else if (this.visual.anims.currentAnim?.key !== "bun-stand") {
       this.walkBobTime = 0;
+      this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
       this.syncVisual(0);
       this.visual.play("bun-stand", true);
     } else {
       this.walkBobTime = 0;
+      this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
       this.syncVisual(0);
     }
   }
