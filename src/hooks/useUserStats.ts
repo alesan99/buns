@@ -18,6 +18,13 @@ type UserStatsSnapshot = {
   caffeineProgress: number;
 };
 
+const DEFAULT_USER_STATS: UserStatsSnapshot = {
+  backroomsVisits: 0,
+  playsRemaining: 3,
+  caffeineLevel: 1,
+  caffeineProgress: 0,
+};
+
 function readNumber(key: string, fallback: number) {
   if (typeof window === "undefined") return fallback;
   const raw = localStorage.getItem(key);
@@ -73,7 +80,8 @@ export function addCoffeeCaffeine(amount = 1) {
 }
 
 export function useUserStats() {
-  const [stats, setStats] = useState<UserStatsSnapshot>(() => readUserStats());
+  // Keep the initial render identical on server and client to avoid hydration mismatches.
+  const [stats, setStats] = useState<UserStatsSnapshot>(DEFAULT_USER_STATS);
 
   useEffect(() => {
     const syncStats = () => setStats(readUserStats());

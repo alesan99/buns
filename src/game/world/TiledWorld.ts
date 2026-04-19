@@ -94,7 +94,7 @@ export class TiledWorld {
     if (this.spawnPoint.x === 0 && this.spawnPoint.y === 0) {
       this.spawnPoint = {
         x: this.tileSize * 1.5,
-        y: this.tileSize * Math.max(layout.height - 2, 1),
+        y: this.tileSize * Math.max(layout.height - 6, 1),
       };
     }
   }

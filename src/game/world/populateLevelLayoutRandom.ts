@@ -55,12 +55,13 @@ export function populateLevelLayoutRandom(
   const width = layout.width;
   if (height < 4 || width < 4) return layout;
 
-  const floorRow = height - 1;
-  const spawnRow = height - 2;
+  const grassStartRow = height - 5;
+  const floorRow = grassStartRow - 1;
+  const spawnRow = floorRow;
   const seed = rng() * 1000;
 
   // ── Reset pass ────────────────────────────────────────────────────────────
-  for (let row = 0; row < height - 1; row += 1) {
+  for (let row = 0; row < grassStartRow; row += 1) {
     for (let col = 0; col < width; col += 1) {
       const object =
         row === spawnRow && layout.getTile(row, col, 1) === OBJECT_SPAWN
@@ -143,7 +144,7 @@ export function populateLevelLayoutRandom(
     const surfaceWarpAmp = lerp(warpAmpBottom,       warpAmpTop,      heightT);
     const warpFreq       = lerp(warpFreqBottom,      warpFreqTop,     heightT);
 
-    let collectibleCol = centerCol;
+    const collectibleCol = centerCol;
     let collectibleRow = row - 1;
 
     for (let col = 0; col < width; col += 1) {

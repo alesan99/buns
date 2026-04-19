@@ -12,13 +12,15 @@ export function setupCamera(
 ) {
   const camera = scene.cameras.main;
   const targetObject = target as Phaser.GameObjects.GameObject & { x: number; y: number };
-  const bottomCameraPadding = tileSize;
+  const bottomCameraPadding = 0;
   const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), max);
   const lerp = (start: number, end: number, amount: number) =>
     start + (end - start) * amount;
   const startY = targetObject.y;
   let autoScrollStarted = false;
+
+  const hasStartedAutoScroll = () => autoScrollStarted;
 
   const applyViewportAndZoom = () => {
     camera.setViewport(0, 0, scene.scale.width, scene.scale.height);
@@ -96,5 +98,8 @@ export function setupCamera(
     scene.scale.off("resize", applyViewportAndZoom);
   });
 
-  return updateCamera;
+  return {
+    updateCamera,
+    hasStartedAutoScroll,
+  };
 }

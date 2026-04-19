@@ -19,9 +19,9 @@ export function createPlatformerScene(
   let world: TiledWorld;
   let background: Phaser.GameObjects.Image | undefined;
   let updateCamera: (() => void) | undefined;
+  let hasAutoScrollStarted: (() => boolean) | undefined;
+  let hasStartedAutoScroll = false;
   let hasDied = false;
-  let deathChecksArmed = false;
-  let initialCameraScrollY = 0;
 
   const triggerDeath = () => {
     if (hasDied) return;
@@ -122,7 +122,7 @@ export function createPlatformerScene(
         },
       );
 
-      updateCamera = setupCamera(
+      const cameraState = setupCamera(
         this,
         player.sprite,
         world.worldWidthPx,
@@ -132,7 +132,8 @@ export function createPlatformerScene(
         () => world.worldTopY,
         () => world.worldBottomY,
       );
-      initialCameraScrollY = this.cameras.main.scrollY;
+      updateCamera = cameraState.updateCamera;
+      hasAutoScrollStarted = cameraState.hasStartedAutoScroll;
 
       // Re-apply after camera zoom is configured.
       resizeBackground(this);
@@ -149,17 +150,13 @@ export function createPlatformerScene(
       player?.update();
       world?.updateStreaming(this.cameras.main);
       updateCamera?.();
-
-      if (!deathChecksArmed) {
-        deathChecksArmed =
-          this.cameras.main.scrollY < initialCameraScrollY - TILE_SIZE;
-      }
+      hasStartedAutoScroll = hasAutoScrollStarted?.() ?? hasStartedAutoScroll;
 
       if (player && world && !hasDied) {
         const body = player.sprite.body as Phaser.Physics.Arcade.Body | null;
         const graceZone = 50;
         const cameraBottom = this.cameras.main.worldView.bottom;
-        if (deathChecksArmed && body && body.top-graceZone > cameraBottom) {
+        if (hasStartedAutoScroll && body && body.top - graceZone > cameraBottom) {
           triggerDeath();
           return;
         }
