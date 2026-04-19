@@ -9,12 +9,14 @@ import { DaySelector } from "./DaySelector";
 import { TodoItem } from "./TodoItem";
 import { StatusBuckets, FilterType } from "./StatusBuckets";
 import { useIsFlipping } from "./JournalShell";
+import { useUserName } from "@/hooks/useUserName";
 
-const FILTER_EMPTY_MESSAGES: Record<FilterType, ReactNode> = {
-  done: "No completed tasks yet. Get to it! 🥕",
-  left: (
+function getFilterEmptyMessage(filter: FilterType, name: string): ReactNode {
+  if (filter === "done") return "No completed tasks yet. Get to it! 🥕";
+  if (filter === "overdue") return "Nothing overdue — nice work!";
+  return (
     <>
-      All done! Anya is so proud{" "}
+      All done! {name} is so proud{" "}
       <img
         src="/bunny.png"
         alt=""
@@ -22,14 +24,14 @@ const FILTER_EMPTY_MESSAGES: Record<FilterType, ReactNode> = {
         className="inline-block h-6 w-6 align-middle object-contain"
       />
     </>
-  ),
-  overdue: "Nothing overdue — nice work!",
-};
+  );
+}
 
 export function TodoList() {
   const todos = useTodos((s) => s.todos);
   const selected = useTodos((s) => s.selectedDate);
   const isFlipping = useIsFlipping();
+  const { name } = useUserName();
 
   const [activeFilter, setActiveFilter] = useState<FilterType | null>(null);
 
@@ -80,7 +82,7 @@ export function TodoList() {
         {isEmpty ? (
           <EmptyState />
         ) : isFilteredEmpty && activeFilter ? (
-          <FilteredEmptyState message={FILTER_EMPTY_MESSAGES[activeFilter]} />
+          <FilteredEmptyState message={getFilterEmptyMessage(activeFilter, name)} />
         ) : (
           <ul className="space-y-2">
             {visibleOverdue.map((t) => (
@@ -122,7 +124,7 @@ function EmptyState() {
   return (
     <div className="rounded-2xl border-2 border-dashed border-divider bg-cream/60 p-8 text-center">
       <img
-        src="/bunny.png"
+        src="/hoppenheimer.png"
         alt=""
         aria-hidden
         className="mx-auto h-10 w-10 object-contain"
