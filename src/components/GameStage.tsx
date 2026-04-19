@@ -1,15 +1,22 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPhaserGame } from "@/game/createPhaserGame";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
+import { PiCarrotDuotone } from "react-icons/pi";
+import { consumePlayForGameStart, useUserStats } from "@/hooks/useUserStats";
 
 export function GameStage() {
   const mountRef = useRef<HTMLDivElement>(null);
   const deathHandledRef = useRef(false);
+  const playConsumedRef = useRef(false);
+  const [cameraStartedMoving, setCameraStartedMoving] = useState(false);
   const flipTo = useFlipTo();
   const isFlipping = useIsFlipping();
+  const { playsRemaining } = useUserStats();
+  const hasPlays = playsRemaining > 0;
+  const controlsEnabledRef = useRef(hasPlays);
 
   useEffect(() => {
     const mountNode = mountRef.current;
@@ -31,7 +38,17 @@ export function GameStage() {
       if (cancelled || !mountNode.isConnected) return;
       mountNode.innerHTML = "";
 
-      game = createPhaserGame(Phaser, mountNode, { onDeath: handleDeath });
+      game = createPhaserGame(Phaser, mountNode, {
+        onDeath: handleDeath,
+        controlsEnabled: controlsEnabledRef.current,
+        onCameraStartMoving: () => {
+          if (!playConsumedRef.current) {
+            consumePlayForGameStart();
+            playConsumedRef.current = true;
+          }
+          setCameraStartedMoving(true);
+        },
+      });
     });
 
     return () => {
@@ -56,6 +73,37 @@ export function GameStage() {
           isFlipping ? "opacity-0" : "opacity-100"
         }`}
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-6 transition-opacity duration-500"
+          style={{ opacity: hasPlays ? (cameraStartedMoving ? 0 : 1) : 1 }}
+        >
+          {hasPlays ? (
+            <div className="flex max-w-[80vw] flex-wrap items-center justify-center gap-1 rounded-full bg-paper/90 px-4 py-2 shadow-lg ring-1 ring-divider">
+              {Array.from({ length: playsRemaining }).map((_, index) => (
+                <PiCarrotDuotone
+                  key={index}
+                  className={index === playsRemaining - 1 ? "animate-pulse" : undefined}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    color: index === playsRemaining - 1 ? "#E07030" : "#D96B20",
+                    filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-sm rounded-2xl bg-paper/95 px-5 py-4 text-center shadow-lg ring-1 ring-divider">
+              <p className="text-sm font-semibold text-ink" style={{ fontFamily: "var(--font-gluten), cursive" }}>
+                need plays/carrots
+              </p>
+              <p className="mt-1 text-xs text-ink-muted">
+                Check off a task to earn a play. Controls are disabled until you do.
+              </p>
+            </div>
+          )}
+        </div>
         <div ref={mountRef} className="h-full w-full" />
       </div>
     </div>

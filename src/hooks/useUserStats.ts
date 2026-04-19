@@ -7,6 +7,7 @@ export const PLAYS_REMAINING_KEY = "bunny-plays-remaining";
 export const CAFFEINE_LEVEL_KEY = "bunny-caffeine-level";
 export const CAFFEINE_PROGRESS_KEY = "bunny-caffeine-progress";
 export const USER_STATS_CHANGED_EVENT = "bunny-user-stats-changed";
+export const NO_PLAYS_ATTEMPT_EVENT = "bunny-no-plays-attempt";
 export const MAX_PLAYS = 10;
 
 const CAFFEINE_TO_NEXT_LEVEL_BASE = 5;
@@ -82,6 +83,21 @@ export function addCoffeeCaffeine(amount = 1) {
 
   persistUserStats(nextStats);
   return nextStats;
+}
+
+export function consumePlayForGameStart() {
+  if (typeof window === "undefined") return null;
+
+  const nextStats = readUserStats();
+  if (nextStats.playsRemaining <= 0) {
+    window.dispatchEvent(new Event(NO_PLAYS_ATTEMPT_EVENT));
+    return null;
+  }
+
+  const spentCount = nextStats.playsRemaining;
+  nextStats.playsRemaining = clampPlays(nextStats.playsRemaining - 1);
+  persistUserStats(nextStats);
+  return { spentCount, remainingPlays: nextStats.playsRemaining };
 }
 
 export function useUserStats() {
