@@ -106,7 +106,7 @@ export class Player {
 
     const left = this.cursors.left?.isDown || this.keyA?.isDown;
     const right = this.cursors.right?.isDown || this.keyD?.isDown;
-    const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown || this.keyW?.isDown;
+    const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown || this.keyW?.isDown || false;
     const jumpJustPressed = jumpHeld && !this.previousJumpHeld;
     this.previousJumpHeld = jumpHeld;
     const godModeToggleHeld = this.godModeKey?.isDown ?? false;
