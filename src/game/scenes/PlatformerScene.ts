@@ -63,11 +63,25 @@ export function createPlatformerScene(
         frameWidth: 512,
         frameHeight: 512,
       });
+      this.load.spritesheet("bun-tweaking", "/bun_tweaking.png", {
+        frameWidth: 512,
+        frameHeight: 512,
+      });
+      this.load.spritesheet("bun-lowkirkenuinely", "/bun_lowkirkenuinely.png", {
+        frameWidth: 512,
+        frameHeight: 512,
+      });
     },
     create(this: Phaser.Scene) {
       const overdueCount = readOverdueCountFromStorage();
-      const hasOverdueTasks = overdueCount >= 1;
       const isBackroomsOverdueMode = overdueCount >= 3;
+      const playerTextureKey = isBackroomsOverdueMode
+        ? "bun-lowkirkenuinely"
+        : overdueCount >= 1
+          ? "bun-tweaking"
+          : "bun";
+      const standAnimKey = `${playerTextureKey}-stand`;
+      const jumpAnimKey = `${playerTextureKey}-jump`;
       const handleResize = () => resizeBackground(this);
 
       background = this.add.image(
@@ -81,19 +95,19 @@ export function createPlatformerScene(
       this.cameras.main.setBackgroundColor("#f5e8cc");
 
       // Create player animations
-      if (!this.anims.exists("bun-stand")) {
+      if (!this.anims.exists(standAnimKey)) {
         this.anims.create({
-          key: "bun-stand",
-          frames: [{ key: "bun", frame: 0 }],
+          key: standAnimKey,
+          frames: [{ key: playerTextureKey, frame: 0 }],
           frameRate: 10,
           repeat: -1,
         });
       }
 
-      if (!this.anims.exists("bun-jump")) {
+      if (!this.anims.exists(jumpAnimKey)) {
         this.anims.create({
-          key: "bun-jump",
-          frames: [{ key: "bun", frame: 1 }],
+          key: jumpAnimKey,
+          frames: [{ key: playerTextureKey, frame: 1 }],
           frameRate: 10,
           repeat: -1,
         });
@@ -116,8 +130,14 @@ export function createPlatformerScene(
       });
       setupPhysicsWorld(this, world.worldWidthPx, world.worldHeightPx);
 
-      player = new Player(this, world.spawnPoint.x, world.spawnPoint.y);
-      player.setDangerMode(hasOverdueTasks);
+      player = new Player(
+        this,
+        world.spawnPoint.x,
+        world.spawnPoint.y,
+        playerTextureKey,
+        standAnimKey,
+        jumpAnimKey,
+      );
 
       this.physics.add.collider(player.sprite, world.solidTiles);
 

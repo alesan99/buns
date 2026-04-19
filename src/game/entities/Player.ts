@@ -4,6 +4,8 @@ export class Player {
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   private readonly visual: Phaser.GameObjects.Sprite;
   private readonly scene: Phaser.Scene;
+  private readonly standAnimationKey: string;
+  private readonly jumpAnimationKey: string;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly keyW: Phaser.Input.Keyboard.Key | null;
   private readonly keyA: Phaser.Input.Keyboard.Key | null;
@@ -26,20 +28,30 @@ export class Player {
   private extraBoostUsed = false;
   private boostStretchTween: Phaser.Tweens.Tween | undefined;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    textureKey = "bun",
+    standAnimationKey = "bun-stand",
+    jumpAnimationKey = "bun-jump",
+  ) {
     this.scene = scene;
-    this.sprite = scene.physics.add.sprite(x, y, "bun");
+    this.standAnimationKey = standAnimationKey;
+    this.jumpAnimationKey = jumpAnimationKey;
+
+    this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setOrigin(0.5, 0.5);
     const body = this.sprite.body as Phaser.Physics.Arcade.Body;
     body.setSize(34, 34, true);
     this.sprite.setVisible(false);
 
-    this.visual = scene.add.sprite(x, y, "bun", 0);
+    this.visual = scene.add.sprite(x, y, textureKey, 0);
     this.visual.setOrigin(0.5, 0.5);
     this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
     this.visual.setDepth(2);
-    this.visual.play("bun-stand");
+    this.visual.play(this.standAnimationKey);
     this.syncVisual(0);
 
     this.cursors = scene.input.keyboard?.createCursorKeys() ?? null;
@@ -80,15 +92,6 @@ export class Player {
       body.center.x + this.visualOffsetX,
       body.center.y + this.visualOffsetY + bobOffsetY,
     );
-  }
-
-  setDangerMode(enabled: boolean) {
-    if (enabled) {
-      this.visual.setTint(0xff4d4d);
-      return;
-    }
-
-    this.visual.clearTint();
   }
 
   update() {
@@ -135,7 +138,7 @@ export class Player {
         this.sprite.setVelocityY(0);
       }
 
-      this.visual.play("bun-stand", true);
+      this.visual.play(this.standAnimationKey, true);
       this.syncVisual(0);
       return;
     }
@@ -167,8 +170,8 @@ export class Player {
 
     // Animation state machine: jump while airborne, run while moving on ground, stand otherwise.
     if (!isGrounded) {
-      if (this.visual.anims.currentAnim?.key !== "bun-jump") {
-        this.visual.play("bun-jump", true);
+      if (this.visual.anims.currentAnim?.key !== this.jumpAnimationKey) {
+        this.visual.play(this.jumpAnimationKey, true);
       }
       this.syncVisual(0);
       return;
@@ -181,14 +184,14 @@ export class Player {
       this.walkBobTime += dt * 28;
       const bobOffsetY = -Math.abs(Math.sin(this.walkBobTime) * 12);
       this.syncVisual(bobOffsetY);
-      if (this.visual.anims.currentAnim?.key !== "bun-stand") {
-        this.visual.play("bun-stand", true);
+      if (this.visual.anims.currentAnim?.key !== this.standAnimationKey) {
+        this.visual.play(this.standAnimationKey, true);
       }
-    } else if (this.visual.anims.currentAnim?.key !== "bun-stand") {
+    } else if (this.visual.anims.currentAnim?.key !== this.standAnimationKey) {
       this.walkBobTime = 0;
       this.visual.setScale(this.baseVisualScale, this.baseVisualScale);
       this.syncVisual(0);
-      this.visual.play("bun-stand", true);
+      this.visual.play(this.standAnimationKey, true);
     } else {
       this.walkBobTime = 0;
       this.visual.setScale(this.baseVisualScale, this.baseVisualScale);

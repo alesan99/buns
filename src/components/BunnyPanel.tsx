@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { PiCarrotDuotone } from "react-icons/pi";
 import { useFlipTo, useIsFlipping } from "./JournalShell";
 import { ScrapbookNotes } from "./ScrapbookNotes";
+import { isOverdue } from "@/lib/date";
+import { useTodos } from "@/store/todos";
 import { useUserStats } from "@/hooks/useUserStats";
 
 const MAX_PLAYS = 5;
@@ -207,7 +209,14 @@ export function BunnyPanel() {
   const pathname = usePathname();
   const onGame = pathname === "/game";
   const isFlipping = useIsFlipping();
+  const todos = useTodos((s) => s.todos);
   const { playsRemaining, level, caffeineProgress, caffeineToNextLevel } = useUserStats();
+  const overdueCount = todos.filter(isOverdue).length;
+  const bunnyImageSrc = overdueCount >= 3
+    ? "/bunny_lowkirkenuinely.png"
+    : overdueCount >= 1
+      ? "/bunny_tweaking.png"
+      : "/bunny.png";
 
   const [notesShown, setNotesShown] = useState(true);
 
@@ -262,9 +271,9 @@ export function BunnyPanel() {
         }
       >
         <img
-          src="/bunny.png"
+          src={bunnyImageSrc}
           alt="Bunny"
-          className="w-48 md:w-56 lg:w-64"
+          className="w-64 md:w-72 lg:w-80"
           style={{}}
         />
       </div>
