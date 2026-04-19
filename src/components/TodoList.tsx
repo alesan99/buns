@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useTodos } from "@/store/todos";
 import { dayLongLabel, isOverdue } from "@/lib/date";
 import { AddTodoButton } from "./AddTodoButton";
@@ -10,9 +10,19 @@ import { TodoItem } from "./TodoItem";
 import { StatusBuckets, FilterType } from "./StatusBuckets";
 import { useIsFlipping } from "./JournalShell";
 
-const FILTER_EMPTY_MESSAGES: Record<FilterType, string> = {
+const FILTER_EMPTY_MESSAGES: Record<FilterType, ReactNode> = {
   done: "No completed tasks yet. Get to it! 🥕",
-  left: "All done! Anya is so proud 🐰",
+  left: (
+    <>
+      All done! Anya is so proud{" "}
+      <img
+        src="/bunny.png"
+        alt=""
+        aria-hidden
+        className="inline-block h-6 w-6 align-middle object-contain"
+      />
+    </>
+  ),
   overdue: "Nothing overdue — nice work!",
 };
 
@@ -111,9 +121,12 @@ function sortByDateThenTime(
 function EmptyState() {
   return (
     <div className="rounded-2xl border-2 border-dashed border-divider bg-cream/60 p-8 text-center">
-      <p className="text-4xl" aria-hidden>
-        🐰
-      </p>
+      <img
+        src="/bunny.png"
+        alt=""
+        aria-hidden
+        className="mx-auto h-10 w-10 object-contain"
+      />
       <p className="mt-2 text-sm font-semibold text-ink">Nothing on the list.</p>
       <p className="mt-1 text-xs text-ink-muted">
         Tap <span className="font-bold text-primary-ink">+ New Task</span> to add one.
@@ -122,7 +135,7 @@ function EmptyState() {
   );
 }
 
-function FilteredEmptyState({ message }: { message: string }) {
+function FilteredEmptyState({ message }: { message: ReactNode }) {
   return (
     <div className="flex items-center justify-center py-10 px-4 text-center">
       <p

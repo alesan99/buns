@@ -69,12 +69,6 @@ function ThoughtBubble({
   visible: boolean;
   state: MentalState;
 }) {
-  const textColors: Record<MentalState, string> = {
-    happy:    "#5a3e1b",
-    tweaking: "#7a3010",
-    insane:   "#72243e",
-  };
-
   return (
     <div
       aria-live="polite"
@@ -120,7 +114,7 @@ function ThoughtBubble({
           fontWeight: 700,
           fontSize: "1.15rem",
           lineHeight: 1.2,
-          color: textColors[state],
+          color: "#3d2c23",
           padding: "0 4px",
         }}
       >
@@ -224,7 +218,7 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         style={{
           width: soilW,
           height: 9,
-          background: "linear-gradient(to bottom, #B8926A, #9A7355)",
+          background: "#A78260",
           borderRadius: "2px 2px 5px 5px",
           boxShadow: "0 2px 5px rgba(61,43,20,0.22)",
         }}
@@ -233,9 +227,9 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
         aria-hidden="true"
         style={{
           display: "block",
-          fontFamily: "var(--font-gluten), cursive",
-          fontSize: "1rem",
-          fontWeight: 400,
+          fontFamily: "var(--font-handwritten), cursive",
+          fontSize: "1.125rem",
+          fontWeight: 500,
           color: "var(--color-walnut)",
           opacity: isEmpty ? 0.38 : 0.55,
           lineHeight: 1,
@@ -252,10 +246,9 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
 function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   const [hovered, setHovered] = useState(false);
   const lifted = hovered && !disabled;
-  const size = lifted ? 118 : 96;
-  const inkAlpha = lifted ? 0.7 : 0.55;
-  const ink = disabled ? "rgba(55,40,28,0.3)" : `rgba(55,40,28,${inkAlpha})`;
-  const outlineFilter = `drop-shadow(0.6px 0 0 ${ink}) drop-shadow(-0.6px 0 0 ${ink}) drop-shadow(0 0.6px 0 ${ink}) drop-shadow(0 -0.6px 0 ${ink})`;
+  const size = lifted ? 104 : 96;
+  const inkAlpha = lifted ? 0.9 : 0.75;
+  const ink = disabled ? "rgba(140,100,70,0.4)" : `rgba(140,100,70,${inkAlpha})`;
   const depthFilter = `drop-shadow(${lifted ? "1px 3px 5px" : "1px 2px 3px"} rgba(44,36,32,${lifted ? 0.22 : 0.15}))`;
   const handleShadowClick = () => {
     if (!disabled) onClick();
@@ -288,27 +281,30 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
         }}
       />
       <div
+        role="presentation"
         aria-hidden
+        onClick={handleShadowClick}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
         style={{
           position: "absolute",
           fontFamily: "var(--font-logo), cursive",
           fontSize: lifted ? "1.1rem" : "1rem",
           fontWeight: 500,
           color: "var(--color-walnut)",
-          top: lifted ? 18 : 14,
-          right: lifted ? 24 : 20,
+          top: size + 6,
+          right: 8,
           textAlign: "right",
-          transform: "rotate(40deg)",
-          transformOrigin: "top right",
           lineHeight: 1,
-          opacity: disabled ? 0.35 : 0.9,
+          opacity: disabled ? 0.4 : 0.95,
           WebkitTextStroke: "1px rgba(253,248,242,0.95)",
           paintOrder: "stroke fill",
           textShadow:
-            "-1px -1px 0 rgba(253,248,242,0.95), 1px -1px 0 rgba(253,248,242,0.95), -1px 1px 0 rgba(253,248,242,0.95), 1px 1px 0 rgba(253,248,242,0.95), 0 0 5px rgba(253,248,242,0.7)",
-          transition: "all 0.25s ease",
+            "-1px -1px 0 rgba(253,248,242,0.95), 1px -1px 0 rgba(253,248,242,0.95), -1px 1px 0 rgba(253,248,242,0.95), 1px 1px 0 rgba(253,248,242,0.95), 0 0 6px rgba(253,248,242,0.75)",
+          transition: "top 0.25s ease, font-size 0.25s ease, opacity 0.2s",
           whiteSpace: "nowrap",
-          pointerEvents: "none",
+          cursor: disabled ? "not-allowed" : "pointer",
+          pointerEvents: "auto",
           zIndex: 3,
         }}
       >
@@ -327,18 +323,42 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           width: size,
           height: size,
           clipPath: "polygon(100% 0, 100% 100%, 0 0)",
-          background: lifted
-            ? "radial-gradient(circle at 100% 0%, #ffffff 0%, var(--color-paper) 35%, var(--color-cream) 75%, var(--color-oat) 100%)"
-            : "radial-gradient(circle at 100% 0%, var(--color-paper) 0%, var(--color-cream) 55%, var(--color-oat) 100%)",
+          background: "radial-gradient(circle at 100% 0%, var(--color-paper) 0%, var(--color-cream) 55%, var(--color-oat) 100%)",
           border: "none",
           padding: 0,
           cursor: disabled ? "not-allowed" : "pointer",
-          filter: `${outlineFilter} ${depthFilter}`,
+          filter: depthFilter,
           transition: "all 0.25s ease",
           opacity: disabled ? 0.45 : 1,
           pointerEvents: "auto",
         }}
       />
+      <svg
+        aria-hidden
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          overflow: "visible",
+          pointerEvents: "none",
+          zIndex: 2,
+          transition: "all 0.25s ease",
+          opacity: disabled ? 0.4 : 1,
+        }}
+      >
+        <line
+          x1={0}
+          y1={0}
+          x2={size}
+          y2={size}
+          stroke={ink}
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
   );
 }
@@ -400,10 +420,10 @@ export function BunnyPanel() {
     >
       <PlaysIndicator shown={notesShown && !onGame} count={playsRemaining} />
 
-      {!onGame && (
+      {!onGame && !isFlipping && (
         <FoldedCorner
           onClick={() => flipTo("/game")}
-          disabled={!!isFlipping || playsRemaining === 0}
+          disabled={!!isFlipping}
         />
       )}
 
