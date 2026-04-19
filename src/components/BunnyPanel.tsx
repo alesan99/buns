@@ -389,72 +389,74 @@ export function BunnyPanel() {
 
       <div aria-hidden className="h-20 shrink-0" />
 
-      {/* Scene photo wrapper — larger when heading to/on game page */}
-      <div
-        className={
-          showLargeScene
-            ? "relative w-[88%] max-w-xl"
-            : "relative w-72 md:w-80 lg:w-96"
-        }
-        style={{ overflow: "visible" }}
-      >
-        {/* Layer 1: scene photo */}
+      {/* Game page: scene is absolutely positioned — zero layout impact */}
+      {showLargeScene && (
         <div
-          className={[
-            "rounded-2xl overflow-hidden",
-            showLargeScene ? "aspect-[4/3]" : "aspect-square",
-          ].join(" ")}
+          style={{
+            position: "absolute",
+            inset: "1.5rem",
+            zIndex: 1,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
         >
-          <img
-            src={sceneSrc}
-            alt=""
+          <div className="h-full rounded-2xl overflow-hidden">
+            <img
+              src={sceneSrc}
+              alt=""
+              aria-hidden
+              className="w-full h-full object-cover"
+            />
+          </div>
+          {/* Washi tape */}
+          <div
             aria-hidden
-            className="w-full h-full object-cover"
+            style={{
+              position: "absolute",
+              top: -10,
+              left: "18%",
+              width: 66,
+              height: 20,
+              background: "rgba(255, 215, 130, 0.85)",
+              borderRadius: 3,
+              transform: "rotate(-9deg)",
+              zIndex: 5,
+              boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
+            }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: -10,
+              right: "18%",
+              width: 66,
+              height: 20,
+              background: "rgba(180, 220, 245, 0.85)",
+              borderRadius: 3,
+              transform: "rotate(8deg)",
+              zIndex: 5,
+              boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
+            }}
           />
         </div>
+      )}
 
-        {/* Washi tape — only when large scene is shown */}
-        {showLargeScene && (
-          <>
-            <div
+      {/* Todo page: scene fills the bunny square as a flow item */}
+      {!showLargeScene && (
+        <div className="relative w-72 md:w-80 lg:w-96" style={{ overflow: "visible" }}>
+          <div className="aspect-square rounded-2xl overflow-hidden">
+            <img
+              src={sceneSrc}
+              alt=""
               aria-hidden
-              style={{
-                position: "absolute",
-                top: -10,
-                left: "18%",
-                width: 66,
-                height: 20,
-                background: "rgba(255, 215, 130, 0.85)",
-                borderRadius: 3,
-                transform: "rotate(-9deg)",
-                zIndex: 5,
-                boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
-              }}
+              className="w-full h-full object-cover"
             />
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                top: -10,
-                right: "18%",
-                width: 66,
-                height: 20,
-                background: "rgba(180, 220, 245, 0.85)",
-                borderRadius: 3,
-                transform: "rotate(8deg)",
-                zIndex: 5,
-                boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
-              }}
-            />
-          </>
-        )}
-
-        {/* Layer 2: bunny centered over the scene at its natural size */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ zIndex: 2 }}
-        >
-          <div className="relative flex w-72 aspect-square items-center justify-center md:w-80 lg:w-96">
+          </div>
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-2xl"
+            style={{ zIndex: 2, pointerEvents: "none" }}
+          >
             <ThoughtBubble
               text={currentThought}
               visible={bunnyHovered && !onGame}
@@ -464,13 +466,37 @@ export function BunnyPanel() {
               src={bunnyImageSrc}
               alt="Bunny"
               className="w-64 md:w-72 lg:w-80"
-              style={{ cursor: "default", position: "relative", zIndex: 3 }}
+              style={{ cursor: "default", position: "relative", zIndex: 3, pointerEvents: "auto" }}
               onMouseEnter={handleBunnyEnter}
               onMouseLeave={handleBunnyLeave}
             />
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Game page: bunny floats centered over the absolute scene */}
+      {showLargeScene && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={bunnyImageSrc}
+            alt="Bunny"
+            className="w-64 md:w-72 lg:w-80"
+            style={{ cursor: "default", position: "relative", zIndex: 4, pointerEvents: "auto" }}
+            onMouseEnter={handleBunnyEnter}
+            onMouseLeave={handleBunnyLeave}
+          />
+        </div>
+      )}
 
       <ScrapbookNotes shown={notesShown && !onGame} />
     </div>
