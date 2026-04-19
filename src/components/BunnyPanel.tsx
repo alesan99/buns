@@ -57,8 +57,8 @@ function pickThought(state: MentalState): string {
 // PNG bubble frame with text inside the cloud body. Smaller and shifted right
 // so the tail points down toward the bunny's head.
 
-const BUBBLE_W = 170;
-const BUBBLE_H = 143;
+const BUBBLE_W = 210;
+const BUBBLE_H = 176;
 
 function ThoughtBubble({
   text,
@@ -80,12 +80,12 @@ function ThoughtBubble({
       aria-live="polite"
       style={{
         position: "absolute",
-        bottom: "calc(100% - 12px)",
-        left: "68%",
+        bottom: "calc(100% - 70px)",
+        left: "85%",
         transform: `translateX(-50%) scale(${visible ? 1 : 0.92})`,
         transformOrigin: "bottom center",
         pointerEvents: "none",
-        zIndex: 30,
+        zIndex: 9999,
         opacity: visible ? 1 : 0,
         transition: "opacity 0.18s ease, transform 0.18s ease",
         width: BUBBLE_W,
@@ -252,34 +252,70 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
   const [hovered, setHovered] = useState(false);
   const lifted = hovered && !disabled;
   const size = lifted ? 118 : 96;
+  const inkAlpha = lifted ? 0.7 : 0.55;
+  const ink = disabled ? "rgba(55,40,28,0.3)" : `rgba(55,40,28,${inkAlpha})`;
+  const outlineFilter = `drop-shadow(0.6px 0 0 ${ink}) drop-shadow(-0.6px 0 0 ${ink}) drop-shadow(0 0.6px 0 ${ink}) drop-shadow(0 -0.6px 0 ${ink})`;
+  const depthFilter = `drop-shadow(${lifted ? "1px 3px 5px" : "1px 2px 3px"} rgba(44,36,32,${lifted ? 0.22 : 0.15}))`;
+  const handleShadowClick = () => {
+    if (!disabled) onClick();
+  };
+  const onEnter = () => setHovered(true);
+  const onLeave = () => setHovered(false);
 
   return (
     <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 170, height: 170 }}>
+      <div
+        role="presentation"
+        aria-hidden
+        onClick={handleShadowClick}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: size,
+          height: size,
+          clipPath: "polygon(0 0, 100% 100%, 0 100%)",
+          background:
+            "linear-gradient(225deg, rgba(44,36,32,0) 40%, rgba(44,36,32,0.32) 50%, rgba(44,36,32,0.16) 62%, rgba(44,36,32,0) 80%)",
+          filter: "blur(1px)",
+          transition: "all 0.25s ease",
+          opacity: disabled ? 0.3 : 1,
+          cursor: disabled ? "not-allowed" : "pointer",
+          pointerEvents: "auto",
+        }}
+      />
       <div
         aria-hidden
         style={{
           position: "absolute",
           fontFamily: "var(--font-logo), cursive",
-          fontSize: lifted ? "1.2rem" : "1.1rem",
-          color: "var(--color-ink-muted)",
-          top: Math.round(size * 0.4),
-          right: Math.round(size * 0.55),
+          fontSize: lifted ? "1.1rem" : "1rem",
+          fontWeight: 500,
+          color: "var(--color-walnut)",
+          top: lifted ? 18 : 14,
+          right: lifted ? 24 : 20,
           textAlign: "right",
           transform: "rotate(40deg)",
           transformOrigin: "top right",
-          lineHeight: 1.15,
+          lineHeight: 1,
           opacity: disabled ? 0.35 : 0.9,
-          transition: "top 0.25s ease, right 0.25s ease, font-size 0.25s ease, opacity 0.2s",
+          WebkitTextStroke: "1px rgba(253,248,242,0.95)",
+          paintOrder: "stroke fill",
+          textShadow:
+            "-1px -1px 0 rgba(253,248,242,0.95), 1px -1px 0 rgba(253,248,242,0.95), -1px 1px 0 rgba(253,248,242,0.95), 1px 1px 0 rgba(253,248,242,0.95), 0 0 5px rgba(253,248,242,0.7)",
+          transition: "all 0.25s ease",
           whiteSpace: "nowrap",
           pointerEvents: "none",
-          zIndex: 1,
+          zIndex: 3,
         }}
       >
         play a game →
       </div>
       <button
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
         onClick={onClick}
         disabled={disabled}
         aria-label="Play a game"
@@ -296,7 +332,7 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           border: "none",
           padding: 0,
           cursor: disabled ? "not-allowed" : "pointer",
-          filter: `drop-shadow(${lifted ? "2px 4px 8px" : "1px 2px 4px"} rgba(44,36,32,${lifted ? 0.22 : 0.14}))`,
+          filter: `${outlineFilter} ${depthFilter}`,
           transition: "all 0.25s ease",
           opacity: disabled ? 0.45 : 1,
           pointerEvents: "auto",
@@ -357,7 +393,7 @@ export function BunnyPanel() {
   return (
     <div
       className={[
-        "relative flex h-full w-full flex-col items-center justify-center gap-6 p-6",
+        "paper-lines relative flex h-full w-full flex-col items-center justify-center gap-6 p-6",
         onGame || isFlipping ? "bg-honey-tint" : "bg-card",
       ].join(" ")}
     >
@@ -438,7 +474,7 @@ export function BunnyPanel() {
           </div>
           <div
             className="absolute inset-0 flex items-center justify-center rounded-2xl"
-            style={{ zIndex: 2, pointerEvents: "none" }}
+            style={{ zIndex: 50, pointerEvents: "none" }}
           >
             <ThoughtBubble
               text={currentThought}

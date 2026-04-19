@@ -103,38 +103,6 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                 className="journal-crease pointer-events-none absolute inset-y-0 left-1/2 z-10 hidden w-10 -translate-x-1/2 md:block"
               />
 
-              {/* Large page-turn triangle — on crease, desktop only */}
-              <button
-                onClick={() => flipTo(pathname === "/" ? "/game" : "/")}
-                disabled={!!flipping}
-                aria-label={pathname === "/" ? "Play a game" : "Back to list"}
-                className="pointer-events-auto absolute z-20 hidden md:block"
-                style={{
-                  right: 0,
-                  top: 40,
-                  transform: "rotate(40deg)",
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: flipping ? "not-allowed" : "pointer",
-                  opacity: flipping ? 0.3 : 1,
-                  transition: "opacity 0.2s",
-                }}
-              >
-                <svg
-                  width={80}
-                  height={56}
-                  viewBox="0 0 80 56"
-                  style={{ display: "block" }}
-                >
-                  <polygon
-                    points="0,0 80,0 40,56"
-                    fill="var(--color-walnut)"
-                    opacity="0.35"
-                  />
-                </svg>
-              </button>
-
               {/* Right page — bunny panel (persists across routes via root layout) */}
               <section className="relative order-last flex min-h-[300px] min-w-0 overflow-hidden rounded-b-3xl bg-card md:order-none md:min-h-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none">
                 <BunnyPanel />
@@ -164,17 +132,23 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                     transformStyle: "preserve-3d",
                   }}
                 >
-                  {/* Forward front face — transparent hole at bunny position, cream
-                    everywhere else via box-shadow spread trick. Ghost elements
-                    mirror BunnyPanel's flex layout so the hole aligns exactly. */}
+                  {/* Forward front face — transparent hole at bunny position, lined
+                    cream everywhere else. The outer paints bg-card + paper-lines;
+                    the inner square uses mix-blend-mode: destination-out (with
+                    isolation on the parent) to punch a real hole through the
+                    lined paper, so the bunny below still shows through. Ghost
+                    elements mirror BunnyPanel's flex layout so the hole aligns. */}
                   {flipping === "forward" && (
-                    <div className="journal-flip-face absolute inset-0 overflow-hidden rounded-r-3xl">
+                    <div
+                      className="journal-flip-face paper-lines bg-card absolute inset-0 overflow-hidden rounded-r-3xl"
+                      style={{ isolation: "isolate" }}
+                    >
                       <div className="flex h-full w-full flex-col items-center justify-center gap-6 p-6">
-                        {/* Transparent cutout — shadow floods surrounding area with cream */}
                         <div
                           className="aspect-square w-72 flex-shrink-0 rounded-2xl md:w-80 lg:w-96"
                           style={{
-                            boxShadow: "0 0 0 2000px var(--color-cream)",
+                            background: "#000",
+                            mixBlendMode: "destination-out",
                           }}
                         />
                         {/* Ghost washi tape — invisible, keeps layout aligned with BunnyPanel */}
@@ -199,7 +173,7 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
 
                   {/* Back face — reveals target page color */}
                   <div
-                    className={`journal-flip-face absolute inset-0 ${
+                    className={`journal-flip-face paper-lines absolute inset-0 ${
                       flipping === "forward"
                         ? "rounded-l-3xl bg-honey-tint"
                         : "rounded-r-3xl bg-card"
