@@ -5,6 +5,9 @@ export class Player {
   private readonly visual: Phaser.GameObjects.Sprite;
   private readonly scene: Phaser.Scene;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
+  private readonly keyW: Phaser.Input.Keyboard.Key | null;
+  private readonly keyA: Phaser.Input.Keyboard.Key | null;
+  private readonly keyD: Phaser.Input.Keyboard.Key | null;
   private readonly godModeKey: Phaser.Input.Keyboard.Key | null;
   private readonly speed = 260;
   private readonly jumpVelocity = -1240;
@@ -40,6 +43,9 @@ export class Player {
     this.syncVisual(0);
 
     this.cursors = scene.input.keyboard?.createCursorKeys() ?? null;
+    this.keyW = scene.input.keyboard?.addKey("W") ?? null;
+    this.keyA = scene.input.keyboard?.addKey("A") ?? null;
+    this.keyD = scene.input.keyboard?.addKey("D") ?? null;
     this.godModeKey = scene.input.keyboard?.addKey("ZERO") ?? null;
   }
 
@@ -79,9 +85,9 @@ export class Player {
   update() {
     if (!this.cursors) return;
 
-    const left = this.cursors.left?.isDown;
-    const right = this.cursors.right?.isDown;
-    const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown;
+    const left = this.cursors.left?.isDown || this.keyA?.isDown;
+    const right = this.cursors.right?.isDown || this.keyD?.isDown;
+    const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown || this.keyW?.isDown;
     const jumpJustPressed = jumpHeld && !this.previousJumpHeld;
     this.previousJumpHeld = jumpHeld;
     const godModeToggleHeld = this.godModeKey?.isDown ?? false;
