@@ -15,6 +15,8 @@ import { readOverdueCountFromStorage } from "@/lib/overdue";
 export function createPlatformerScene(
   Phaser: typeof import("phaser"),
   onDeath?: () => void,
+  onCameraStartMoving?: () => void,
+  controlsEnabled = true,
 ) {
   let player: Player;
   let world: TiledWorld;
@@ -141,6 +143,7 @@ export function createPlatformerScene(
         playerTextureKey,
         standAnimKey,
         jumpAnimKey,
+        controlsEnabled,
       );
 
       this.physics.add.collider(player.sprite, world.solidTiles);
@@ -169,6 +172,7 @@ export function createPlatformerScene(
         CAMERA_VISIBLE_TILES_ACROSS,
         () => world.worldTopY,
         () => world.worldBottomY,
+        onCameraStartMoving,
       );
       updateCamera = cameraState.updateCamera;
       hasAutoScrollStarted = cameraState.hasStartedAutoScroll;

@@ -5,9 +5,16 @@ export function createPhaserGame(
   mountNode: HTMLElement,
   options?: {
     onDeath?: () => void;
+    onCameraStartMoving?: () => void;
+    controlsEnabled?: boolean;
   },
 ) {
-  const scene = createPlatformerScene(Phaser, options?.onDeath);
+  const scene = createPlatformerScene(
+    Phaser,
+    options?.onDeath,
+    options?.onCameraStartMoving,
+    options?.controlsEnabled ?? true,
+  );
 
   return new Phaser.Game({
     type: Phaser.AUTO,

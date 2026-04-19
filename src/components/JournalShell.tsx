@@ -37,6 +37,7 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
   const flipTo = useCallback<FlipFn>(
     (href) => {
       if (flipping || href === pathname) return;
+
       setFlipping(href === "/" ? "back" : "forward");
       window.setTimeout(() => router.push(href), FLIP_MS);
     },

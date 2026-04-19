@@ -19,6 +19,7 @@ export class Player {
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;
   private readonly baseVisualScale = 0.20;
+  private readonly controlsEnabled: boolean;
   private walkBobTime = 0;
   private previousJumpHeld = false;
   private previousGodModeToggleHeld = false;
@@ -35,10 +36,12 @@ export class Player {
     textureKey = "bun",
     standAnimationKey = "bun-stand",
     jumpAnimationKey = "bun-jump",
+    controlsEnabled = true,
   ) {
     this.scene = scene;
     this.standAnimationKey = standAnimationKey;
     this.jumpAnimationKey = jumpAnimationKey;
+    this.controlsEnabled = controlsEnabled;
 
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
     this.sprite.setCollideWorldBounds(true);
@@ -97,6 +100,17 @@ export class Player {
   update() {
     if (!this.cursors) return;
 
+    if (!this.controlsEnabled) {
+      const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
+      if (body) {
+        body.setAllowGravity(false);
+        body.setVelocity(0, 0);
+      }
+      this.visual.play(this.standAnimationKey, true);
+      this.syncVisual(0);
+      return;
+    }
+
     const left = this.cursors.left?.isDown || this.keyA?.isDown;
     const right = this.cursors.right?.isDown || this.keyD?.isDown;
     const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown || this.keyW?.isDown;
@@ -110,10 +124,10 @@ export class Player {
       this.godModeEnabled = !this.godModeEnabled;
     }
 
-    if (left) {
+    if (left && this.controlsEnabled) {
       this.sprite.setVelocityX(-this.speed);
       this.visual.setFlipX(true);
-    } else if (right) {
+    } else if (right && this.controlsEnabled) {
       this.sprite.setVelocityX(this.speed);
       this.visual.setFlipX(false);
     } else {
@@ -149,7 +163,7 @@ export class Player {
       this.extraBoostUsed = false;
     }
 
-    if (jumpJustPressed && isGrounded) {
+    if (jumpJustPressed && isGrounded && this.controlsEnabled) {
       this.sprite.setVelocityY(this.jumpVelocity);
       this.jumpSpamArmed = true;
       this.jumpSpamPresses = 0;

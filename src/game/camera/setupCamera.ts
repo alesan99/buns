@@ -9,6 +9,7 @@ export function setupCamera(
   tilesAcross: number,
   getWorldTopY?: () => number,
   getWorldBottomY?: () => number,
+  onAutoScrollStart?: () => void,
 ) {
   const camera = scene.cameras.main;
   const targetObject = target as Phaser.GameObjects.GameObject & { x: number; y: number };
@@ -52,6 +53,7 @@ export function setupCamera(
 
     if (!autoScrollStarted && targetObject.y < startY - 2) {
       autoScrollStarted = true;
+      onAutoScrollStart?.();
     }
 
     if (autoScrollStarted) {
