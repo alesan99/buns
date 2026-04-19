@@ -1,4 +1,5 @@
 import type * as Phaser from "phaser";
+import { addCoffeeCaffeine } from "@/hooks/useUserStats";
 
 export class Collectible {
   readonly row: number;
@@ -33,6 +34,7 @@ export class Collectible {
   }
 
   collect() {
+    addCoffeeCaffeine(1);
     this.destroy();
   }
 
