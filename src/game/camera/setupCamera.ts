@@ -12,7 +12,7 @@ export function setupCamera(
 ) {
   const camera = scene.cameras.main;
   const targetObject = target as Phaser.GameObjects.GameObject & { x: number; y: number };
-  const bottomCameraPadding = tileSize;
+  const bottomCameraPadding = 0;
   const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), max);
   const lerp = (start: number, end: number, amount: number) =>

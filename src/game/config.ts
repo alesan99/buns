@@ -67,12 +67,14 @@ export class LevelGrid {
 export function createBaseLevelLayout(): LevelGrid {
   const grid = new LevelGrid(WORLD_WIDTH_TILES, WORLD_HEIGHT_TILES);
 
-  const floorRow = WORLD_HEIGHT_TILES - 1;
-  const spawnRow = WORLD_HEIGHT_TILES - 2;
+  const grassStartRow = WORLD_HEIGHT_TILES - 6;
+  const spawnRow = grassStartRow - 1;
   const spawnCol = 2;
 
-  for (let col = 0; col < WORLD_WIDTH_TILES; col += 1) {
-    grid.setTile(floorRow, col, TILE_GROUND);
+  for (let row = grassStartRow; row < WORLD_HEIGHT_TILES; row += 1) {
+    for (let col = 0; col < WORLD_WIDTH_TILES; col += 1) {
+      grid.setTile(row, col, TILE_GROUND);
+    }
   }
 
   grid.setTile(spawnRow, spawnCol, OBJECT_SPAWN, 1);
