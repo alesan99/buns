@@ -7,6 +7,8 @@ export function setupCamera(
   worldHeight: number,
   tileSize: number,
   tilesAcross: number,
+  getWorldTopY?: () => number,
+  getWorldBottomY?: () => number,
 ) {
   const camera = scene.cameras.main;
   const targetObject = target as Phaser.GameObjects.GameObject & { x: number; y: number };
@@ -25,11 +27,24 @@ export function setupCamera(
     camera.setZoom(zoom > 0 ? zoom : 1);
   };
 
+  const applyBounds = () => {
+    const topY = getWorldTopY ? getWorldTopY() : 0;
+    const bottomY = getWorldBottomY ? getWorldBottomY() : worldHeight;
+    camera.setBounds(
+      0,
+      topY,
+      worldWidth,
+      Math.max(tileSize, bottomY - topY + bottomCameraPadding),
+    );
+  };
+
   const updateCamera = () => {
     const zoom = camera.zoom || 1;
     const visibleWorldWidth = camera.width / zoom;
     const visibleWorldHeight = camera.height / zoom;
     const dt = scene.game.loop.delta / 1000;
+    const minScrollY = getWorldTopY ? getWorldTopY() : 0;
+    const maxWorldBottomY = getWorldBottomY ? getWorldBottomY() : worldHeight;
 
     camera.scrollX = targetObject.x - visibleWorldWidth / 2;
 
@@ -49,7 +64,7 @@ export function setupCamera(
       camera.scrollY -= autoScrollSpeed * dt;
     }
 
-    const desiredScrollY = targetObject.y - visibleWorldHeight / 2;
+    const desiredScrollY = targetObject.y - visibleWorldHeight * 0.25;
     if (desiredScrollY < camera.scrollY) {
       camera.scrollY = lerp(camera.scrollY, desiredScrollY, 0.08);
     }
@@ -57,12 +72,14 @@ export function setupCamera(
     camera.scrollX = clamp(camera.scrollX, 0, Math.max(0, worldWidth - visibleWorldWidth));
     camera.scrollY = clamp(
       camera.scrollY,
-      0,
-      Math.max(0, worldHeight + bottomCameraPadding - visibleWorldHeight),
+      minScrollY,
+      Math.max(minScrollY, maxWorldBottomY + bottomCameraPadding - visibleWorldHeight),
     );
+
+    applyBounds();
   };
 
-  camera.setBounds(0, 0, worldWidth, worldHeight + bottomCameraPadding);
+  applyBounds();
   camera.setRoundPixels(true);
   applyViewportAndZoom();
   {

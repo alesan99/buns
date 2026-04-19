@@ -129,6 +129,8 @@ export function createPlatformerScene(
         world.worldHeightPx,
         TILE_SIZE,
         CAMERA_VISIBLE_TILES_ACROSS,
+        () => world.worldTopY,
+        () => world.worldBottomY,
       );
       initialCameraScrollY = this.cameras.main.scrollY;
 
@@ -145,6 +147,7 @@ export function createPlatformerScene(
     },
     update(this: Phaser.Scene) {
       player?.update();
+      world?.updateStreaming(this.cameras.main);
       updateCamera?.();
 
       if (!deathChecksArmed) {
@@ -154,8 +157,9 @@ export function createPlatformerScene(
 
       if (player && world && !hasDied) {
         const body = player.sprite.body as Phaser.Physics.Arcade.Body | null;
+        const graceZone = 50;
         const cameraBottom = this.cameras.main.worldView.bottom;
-        if (deathChecksArmed && body && body.top > cameraBottom) {
+        if (deathChecksArmed && body && body.top-graceZone > cameraBottom) {
           triggerDeath();
           return;
         }
