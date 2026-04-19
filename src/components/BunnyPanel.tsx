@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { PiCarrotDuotone } from "react-icons/pi";
-import { useFlipTo, useIsFlipping } from "./JournalShell";
+import { useFlipTo, useIsFlipping, useFlipDirection } from "./JournalShell";
 import { ScrapbookNotes } from "./ScrapbookNotes";
 import { isOverdue } from "@/lib/date";
 import { useTodos } from "@/store/todos";
@@ -54,8 +54,11 @@ function pickThought(state: MentalState): string {
 }
 
 // ── Hand-drawn thought bubble ─────────────────────────────────────────────────
-// Uses the PNG as a background frame. Text is absolutely centred in the upper
-// ~70% of the image (the cloud body), leaving the tail dots below untouched.
+// PNG bubble frame with text inside the cloud body. Smaller and shifted right
+// so the tail points down toward the bunny's head.
+
+const BUBBLE_W = 170;
+const BUBBLE_H = 143;
 
 function ThoughtBubble({
   text,
@@ -66,18 +69,10 @@ function ThoughtBubble({
   visible: boolean;
   state: MentalState;
 }) {
-  // Tint the PNG for each state using CSS hue-rotate + sepia so it still
-  // reads as hand-drawn but has a colour personality per mood.
-  const tints: Record<MentalState, string> = {
-    happy:   "sepia(0.2) hue-rotate(0deg) saturate(1)",
-    tweaking:"sepia(0.5) hue-rotate(-20deg) saturate(2)",
-    insane:  "sepia(0.6) hue-rotate(280deg) saturate(2.5)",
-  };
-
   const textColors: Record<MentalState, string> = {
-    happy:   "#5a3e1b",
-    tweaking:"#7a3010",
-    insane:  "#72243e",
+    happy:    "#5a3e1b",
+    tweaking: "#7a3010",
+    insane:   "#72243e",
   };
 
   return (
@@ -85,21 +80,18 @@ function ThoughtBubble({
       aria-live="polite"
       style={{
         position: "absolute",
-        // Sit above the bunny box; tail of the PNG points downward toward bunny
-        bottom: "calc(100% - 10px)",
-        left: "50%",
-        transform: `translateX(-50%) scale(${visible ? 1 : 0.9})`,
+        bottom: "calc(100% - 12px)",
+        left: "68%",
+        transform: `translateX(-50%) scale(${visible ? 1 : 0.92})`,
         transformOrigin: "bottom center",
         pointerEvents: "none",
         zIndex: 30,
         opacity: visible ? 1 : 0,
         transition: "opacity 0.18s ease, transform 0.18s ease",
-        // Size the container to the PNG's natural aspect ratio (~1.18 : 1 w:h)
-        width: 260,
-        height: 220,
+        width: BUBBLE_W,
+        height: BUBBLE_H,
       }}
     >
-      {/* Hand-drawn bubble PNG — fills the container, tinted per state */}
       <img
         src="/thought-bubble.png"
         alt=""
@@ -110,13 +102,9 @@ function ThoughtBubble({
           width: "100%",
           height: "100%",
           objectFit: "fill",
-          filter: tints[state],
           userSelect: "none",
         }}
       />
-
-      {/* Text sits in the cloud body — upper 68% of the image, with side padding
-          to stay inside the lobed edges */}
       <div
         style={{
           position: "absolute",
@@ -129,8 +117,8 @@ function ThoughtBubble({
           justifyContent: "center",
           textAlign: "center",
           fontFamily: "var(--font-gluten), cursive",
-          fontSize: "1rem",
-          lineHeight: 1.4,
+          fontSize: "0.82rem",
+          lineHeight: 1.3,
           color: textColors[state],
           padding: "0 4px",
         }}
@@ -262,10 +250,29 @@ function PlaysIndicator({ shown, count }: { shown: boolean; count: number }) {
 
 function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   const [hovered, setHovered] = useState(false);
-  const size = hovered && !disabled ? 108 : 90;
+  const lifted = hovered && !disabled;
+  const size = lifted ? 108 : 90;
 
   return (
     <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 160, height: 160 }}>
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: size,
+          height: size,
+          clipPath: "polygon(0 0, 100% 100%, 0 100%)",
+          background:
+            "linear-gradient(225deg, rgba(44,36,32,0) 40%, rgba(44,36,32,0.32) 50%, rgba(44,36,32,0.14) 62%, rgba(44,36,32,0) 80%)",
+          filter: "blur(2px)",
+          transform: lifted ? "translate(-4px, 4px)" : "translate(-3px, 3px)",
+          transition: "all 0.25s ease",
+          opacity: disabled ? 0.35 : 1,
+          pointerEvents: "none",
+        }}
+      />
       <div
         aria-hidden
         style={{
@@ -283,21 +290,11 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
           transition: "top 0.25s ease, right 0.25s ease, opacity 0.2s",
           whiteSpace: "nowrap",
           pointerEvents: "none",
+          zIndex: 1,
         }}
       >
         play a game →
       </div>
-      <div
-        aria-hidden
-        style={{
-          position: "absolute", top: 0, right: 0,
-          width: size + 8, height: size + 8,
-          clipPath: "polygon(100% 0, 100% 100%, 0 0)",
-          background: "rgba(0,0,0,0.10)",
-          transition: "all 0.25s ease",
-          pointerEvents: "none",
-        }}
-      />
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -305,13 +302,18 @@ function FoldedCorner({ onClick, disabled }: { onClick: () => void; disabled: bo
         disabled={disabled}
         aria-label="Play a game"
         style={{
-          position: "absolute", top: 0, right: 0,
-          width: size, height: size,
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: size,
+          height: size,
           clipPath: "polygon(100% 0, 100% 100%, 0 0)",
-          background: "var(--color-oat)",
-          border: "none", padding: 0,
+          background:
+            "linear-gradient(225deg, var(--color-paper) 0%, var(--color-cream) 26%, var(--color-oat) 44%, #d8c0ae 50%)",
+          border: "none",
+          padding: 0,
           cursor: disabled ? "not-allowed" : "pointer",
-          filter: `drop-shadow(3px 3px ${hovered && !disabled ? 8 : 5}px rgba(0,0,0,${hovered && !disabled ? 0.22 : 0.14}))`,
+          filter: `drop-shadow(1px 1px ${lifted ? 3 : 2}px rgba(44,36,32,${lifted ? 0.22 : 0.16}))`,
           transition: "all 0.25s ease",
           opacity: disabled ? 0.4 : 1,
           pointerEvents: "auto",
@@ -328,8 +330,11 @@ export function BunnyPanel() {
   const pathname = usePathname();
   const onGame = pathname === "/game";
   const isFlipping = useIsFlipping();
+  const flipDirection = useFlipDirection();
+  // Expand the scene as soon as a forward flip starts, not just after route change
+  const showLargeScene = onGame || flipDirection === "forward";
   const todos = useTodos((s) => s.todos);
-  const { playsRemaining, level, caffeineProgress, caffeineToNextLevel } = useUserStats();
+  const { playsRemaining } = useUserStats();
   const overdueCount = todos.filter(isOverdue).length;
 
   const mentalState: MentalState =
@@ -364,6 +369,8 @@ export function BunnyPanel() {
     setBunnyHovered(false);
   };
 
+  const sceneSrc = overdueCount > 0 ? "/backrooms.png" : "/meadow.png";
+
   return (
     <div
       className={[
@@ -382,39 +389,87 @@ export function BunnyPanel() {
 
       <div aria-hidden className="h-20 shrink-0" />
 
+      {/* Scene photo wrapper — larger when heading to/on game page */}
       <div
-        aria-hidden
-        className="rounded-full bg-paper/90 px-4 py-1 text-xs font-semibold text-ink shadow-sm"
-        style={{ fontFamily: "var(--font-gluten), cursive" }}
-      >
-        caffeine lv {level} · {caffeineProgress}/{caffeineToNextLevel}
-      </div>
-
-      <div
-        className="relative flex aspect-square w-72 items-center justify-center rounded-2xl md:w-80 lg:w-96 bg-honey-tint"
-        style={
-          onGame || isFlipping
-            ? undefined
-            : {
-                boxShadow:
-                  "inset 0 12px 28px rgba(61, 53, 43, 0.35), inset 0 -6px 18px rgba(255, 253, 246, 0.4)",
-              }
+        className={
+          showLargeScene
+            ? "relative w-[88%] max-w-xl"
+            : "relative w-72 md:w-80 lg:w-96"
         }
+        style={{ overflow: "visible" }}
       >
-        <ThoughtBubble
-          text={currentThought}
-          visible={bunnyHovered && !onGame}
-          state={mentalState}
-        />
+        {/* Layer 1: scene photo */}
+        <div
+          className={[
+            "rounded-2xl overflow-hidden",
+            showLargeScene ? "aspect-[4/3]" : "aspect-square",
+          ].join(" ")}
+        >
+          <img
+            src={sceneSrc}
+            alt=""
+            aria-hidden
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-        <img
-          src={bunnyImageSrc}
-          alt="Bunny"
-          className="w-64 md:w-72 lg:w-80"
-          style={{ cursor: "default" }}
-          onMouseEnter={handleBunnyEnter}
-          onMouseLeave={handleBunnyLeave}
-        />
+        {/* Washi tape — only when large scene is shown */}
+        {showLargeScene && (
+          <>
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                top: -10,
+                left: "18%",
+                width: 66,
+                height: 20,
+                background: "rgba(255, 215, 130, 0.85)",
+                borderRadius: 3,
+                transform: "rotate(-9deg)",
+                zIndex: 5,
+                boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
+              }}
+            />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                top: -10,
+                right: "18%",
+                width: 66,
+                height: 20,
+                background: "rgba(180, 220, 245, 0.85)",
+                borderRadius: 3,
+                transform: "rotate(8deg)",
+                zIndex: 5,
+                boxShadow: "0 1px 5px rgba(0,0,0,0.18)",
+              }}
+            />
+          </>
+        )}
+
+        {/* Layer 2: bunny centered over the scene at its natural size */}
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ zIndex: 2 }}
+        >
+          <div className="relative flex w-72 aspect-square items-center justify-center md:w-80 lg:w-96">
+            <ThoughtBubble
+              text={currentThought}
+              visible={bunnyHovered && !onGame}
+              state={mentalState}
+            />
+            <img
+              src={bunnyImageSrc}
+              alt="Bunny"
+              className="w-64 md:w-72 lg:w-80"
+              style={{ cursor: "default", position: "relative", zIndex: 3 }}
+              onMouseEnter={handleBunnyEnter}
+              onMouseLeave={handleBunnyLeave}
+            />
+          </div>
+        </div>
       </div>
 
       <ScrapbookNotes shown={notesShown && !onGame} />

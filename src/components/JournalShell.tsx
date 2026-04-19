@@ -18,6 +18,9 @@ export const useFlipTo = () => useContext(FlipContext);
 const FlipStateContext = createContext(false);
 export const useIsFlipping = () => useContext(FlipStateContext);
 
+const FlipDirectionContext = createContext<"forward" | "back" | false>(false);
+export const useFlipDirection = () => useContext(FlipDirectionContext);
+
 const FLIP_MS = 700;
 
 export function JournalShell({ children }: { children: React.ReactNode }) {
@@ -45,7 +48,8 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <FlipStateContext.Provider value={!!flipping}>
+    <FlipDirectionContext.Provider value={flipping}>
+      <FlipStateContext.Provider value={!!flipping}>
       <FlipContext.Provider value={flipTo}>
         <main className="flex min-h-screen justify-center bg-surface px-5 py-3 md:px-7 md:py-4 lg:px-10 lg:py-5">
           <div className="relative w-full max-w-[1440px]">
@@ -208,6 +212,7 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </FlipContext.Provider>
-    </FlipStateContext.Provider>
+      </FlipStateContext.Provider>
+    </FlipDirectionContext.Provider>
   );
 }
