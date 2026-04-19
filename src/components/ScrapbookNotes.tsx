@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { MAX_USER_NAME_LENGTH, useUserName } from "@/hooks/useUserName";
 import { useUserStats } from "@/hooks/useUserStats";
 
 interface NoteProps {
@@ -11,6 +12,7 @@ interface NoteProps {
   noteRotation: number;
   tapeRotation: number;
   ariaLabel: string;
+  progress?: { current: number; max: number };
 }
 
 function Note({
@@ -21,7 +23,11 @@ function Note({
   noteRotation,
   tapeRotation,
   ariaLabel,
+  progress,
 }: NoteProps) {
+  const pct = progress
+    ? Math.max(0, Math.min(100, (progress.current / Math.max(1, progress.max)) * 100))
+    : 0;
   return (
     <div
       role="group"
@@ -91,14 +97,44 @@ function Note({
         <span
           style={{
             fontFamily: "var(--font-sans), cursive",
-            fontSize: 26,
+            fontSize: progress ? 14 : 26,
             fontWeight: 700,
             color: "var(--color-walnut)",
             lineHeight: 1.1,
+            marginTop: progress ? 2 : 0,
           }}
         >
           {value}
         </span>
+        {progress && (
+          <div
+            role="progressbar"
+            aria-valuenow={progress.current}
+            aria-valuemin={0}
+            aria-valuemax={progress.max}
+            style={{
+              height: 8,
+              width: "100%",
+              background: "rgba(230, 210, 170, 0.45)",
+              borderRadius: 4,
+              border: "1px solid rgba(165, 130, 45, 0.3)",
+              overflow: "hidden",
+              marginTop: 5,
+              boxShadow: "inset 0 1px 2px rgba(61, 43, 20, 0.15)",
+            }}
+          >
+            <div
+              style={{
+                width: `${pct}%`,
+                height: "100%",
+                background:
+                  "linear-gradient(to right, var(--color-butter), #d4973d)",
+                borderRadius: 3,
+                transition: "width 0.3s ease",
+              }}
+            />
+          </div>
+        )}
         {subtext && (
           <span
             style={{
@@ -122,13 +158,31 @@ interface ScrapbookNotesProps {
 }
 
 export function ScrapbookNotes({ shown }: ScrapbookNotesProps) {
-  const { level, caffeineToNextLevel, backroomsVisits } = useUserStats();
+  const { level, caffeineProgress, caffeineToNextLevel, backroomsVisits } = useUserStats();
+  const { name, setName } = useUserName();
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const editing = draft !== null;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mq.matches);
   }, []);
+
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editing]);
+
+  const startEdit = () => setDraft(name);
+  const commit = () => {
+    if (draft !== null) setName(draft);
+    setDraft(null);
+  };
+  const cancel = () => setDraft(null);
 
   const duration = shown ? 150 : 100;
   const easing = shown ? "ease-out" : "ease-in";
@@ -149,7 +203,7 @@ export function ScrapbookNotes({ shown }: ScrapbookNotesProps) {
         pointerEvents: "none",
       }}
     >
-      {/* Anya washi tape label — width matches the bunny cutout (w-72/80/96) */}
+      {/* Name washi tape label — width matches the bunny cutout (w-72/80/96) */}
       <div
         className="w-72 md:w-80 lg:w-96"
         style={{
@@ -159,18 +213,60 @@ export function ScrapbookNotes({ shown }: ScrapbookNotesProps) {
           padding: "3px 16px",
           clipPath: "polygon(3% 8%, 97% 2%, 99% 92%, 2% 96%)",
           textAlign: "center",
+          pointerEvents: shown ? "auto" : "none",
         }}
       >
-        <span
-          style={{
-            fontFamily: "var(--font-handwritten), cursive",
-            fontSize: "2rem",
-            fontWeight: 700,
-            color: "var(--color-walnut)",
-          }}
-        >
-          Anya
-        </span>
+        {editing ? (
+          <input
+            ref={inputRef}
+            value={draft ?? ""}
+            maxLength={MAX_USER_NAME_LENGTH}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commit();
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                cancel();
+              }
+            }}
+            aria-label="Edit name"
+            style={{
+              fontFamily: "var(--font-handwritten), cursive",
+              fontSize: "2rem",
+              fontWeight: 700,
+              color: "var(--color-walnut)",
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              textAlign: "center",
+              width: "100%",
+              padding: 0,
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={startEdit}
+            aria-label={`Edit name (currently ${name})`}
+            title="Click to edit name"
+            style={{
+              fontFamily: "var(--font-handwritten), cursive",
+              fontSize: "2rem",
+              fontWeight: 700,
+              color: "var(--color-walnut)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              width: "100%",
+            }}
+          >
+            {name}
+          </button>
+        )}
       </div>
 
       {/* Notes row */}
@@ -192,12 +288,13 @@ export function ScrapbookNotes({ shown }: ScrapbookNotesProps) {
         />
         <Note
           label="caffeine"
-          value={`${caffeineToNextLevel}mg`}
+          value={`${caffeineProgress} / ${caffeineToNextLevel} mg`}
           subtext={`to Lv. ${level + 1}`}
           tapeColor="var(--color-butter)"
           noteRotation={4}
           tapeRotation={3}
-          ariaLabel={`Caffeine needed to next level: ${caffeineToNextLevel}mg`}
+          ariaLabel={`Caffeine progress: ${caffeineProgress} of ${caffeineToNextLevel}mg to level ${level + 1}`}
+          progress={{ current: caffeineProgress, max: caffeineToNextLevel }}
         />
         <Note
           label="backrooms"
