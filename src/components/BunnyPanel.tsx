@@ -79,7 +79,7 @@ function ThoughtBubble({
         transform: `translateX(-50%) scale(${visible ? 1 : 0.92})`,
         transformOrigin: "bottom center",
         pointerEvents: "none",
-        zIndex: 9999,
+        zIndex: 30,
         opacity: visible ? 1 : 0,
         transition: "opacity 0.18s ease, transform 0.18s ease",
         width: BUBBLE_W,
@@ -495,7 +495,7 @@ export function BunnyPanel() {
           </div>
           <div
             className="absolute inset-0 flex items-center justify-center rounded-2xl"
-            style={{ zIndex: 50, pointerEvents: "none" }}
+            style={{ zIndex: 20, pointerEvents: "none" }}
           >
             <ThoughtBubble
               text={currentThought}
