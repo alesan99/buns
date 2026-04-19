@@ -104,17 +104,6 @@ export class Player {
   update() {
     if (!this.cursors) return;
 
-    if (!this.controlsEnabled) {
-      const body = this.sprite.body as Phaser.Physics.Arcade.Body | null;
-      if (body) {
-        body.setAllowGravity(false);
-        body.setVelocity(0, 0);
-      }
-      this.visual.play(this.standAnimationKey, true);
-      this.syncVisual(0);
-      return;
-    }
-
     const left = this.cursors.left?.isDown || this.keyA?.isDown;
     const right = this.cursors.right?.isDown || this.keyD?.isDown;
     const jumpHeld = this.cursors.up?.isDown || this.cursors.space?.isDown || this.keyW?.isDown;
