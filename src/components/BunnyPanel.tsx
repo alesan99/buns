@@ -57,8 +57,8 @@ function pickThought(state: MentalState): string {
 // PNG bubble frame with text inside the cloud body. Smaller and shifted right
 // so the tail points down toward the bunny's head.
 
-const BUBBLE_W = 210;
-const BUBBLE_H = 176;
+const BUBBLE_W = 270;
+const BUBBLE_H = 226;
 
 function ThoughtBubble({
   text,
@@ -80,7 +80,7 @@ function ThoughtBubble({
       aria-live="polite"
       style={{
         position: "absolute",
-        bottom: "calc(100% - 70px)",
+        bottom: "calc(100% - 110px)",
         left: "85%",
         transform: `translateX(-50%) scale(${visible ? 1 : 0.92})`,
         transformOrigin: "bottom center",
@@ -108,7 +108,7 @@ function ThoughtBubble({
       <div
         style={{
           position: "absolute",
-          top: "8%",
+          top: "10%",
           left: "12%",
           right: "12%",
           height: "62%",
@@ -116,9 +116,10 @@ function ThoughtBubble({
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
-          fontFamily: "var(--font-gluten), cursive",
-          fontSize: "0.82rem",
-          lineHeight: 1.3,
+          fontFamily: "var(--font-handwritten), cursive",
+          fontWeight: 700,
+          fontSize: "1.15rem",
+          lineHeight: 1.2,
           color: textColors[state],
           padding: "0 4px",
         }}

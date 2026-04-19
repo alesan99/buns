@@ -132,25 +132,26 @@ export function JournalShell({ children }: { children: React.ReactNode }) {
                     transformStyle: "preserve-3d",
                   }}
                 >
-                  {/* Forward front face — transparent hole at bunny position, lined
-                    cream everywhere else. The outer paints bg-card + paper-lines;
-                    the inner square uses mix-blend-mode: destination-out (with
-                    isolation on the parent) to punch a real hole through the
-                    lined paper, so the bunny below still shows through. Ghost
-                    elements mirror BunnyPanel's flex layout so the hole aligns. */}
+                  {/* Forward front face — transparent hole at bunny position, cream
+                    everywhere else via box-shadow spread trick. Four paper-lines
+                    strips hang off the cutout's edges to fill the cream area
+                    with ruling while keeping the cutout itself clean. Ghost
+                    elements mirror BunnyPanel's flex layout so alignment holds. */}
                   {flipping === "forward" && (
-                    <div
-                      className="journal-flip-face paper-lines bg-card absolute inset-0 overflow-hidden rounded-r-3xl"
-                      style={{ isolation: "isolate" }}
-                    >
+                    <div className="journal-flip-face absolute inset-0 overflow-hidden rounded-r-3xl">
                       <div className="flex h-full w-full flex-col items-center justify-center gap-6 p-6">
                         <div
-                          className="aspect-square w-72 flex-shrink-0 rounded-2xl md:w-80 lg:w-96"
+                          className="relative aspect-square w-72 flex-shrink-0 rounded-2xl md:w-80 lg:w-96"
                           style={{
-                            background: "#000",
-                            mixBlendMode: "destination-out",
+                            boxShadow: "0 0 0 2000px var(--color-cream)",
                           }}
-                        />
+                        >
+                          {/* Paper-lines ring around the cutout (cream flood only, not the hole) */}
+                          <div className="paper-lines pointer-events-none absolute bottom-full -left-[2000px] -right-[2000px] h-[2000px]" />
+                          <div className="paper-lines pointer-events-none absolute top-full -left-[2000px] -right-[2000px] h-[2000px]" />
+                          <div className="paper-lines pointer-events-none absolute inset-y-0 right-full w-[2000px]" />
+                          <div className="paper-lines pointer-events-none absolute inset-y-0 left-full w-[2000px]" />
+                        </div>
                         {/* Ghost washi tape — invisible, keeps layout aligned with BunnyPanel */}
                         <div className="h-9 w-44 flex-shrink-0 opacity-0" />
                       </div>

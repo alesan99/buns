@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Boogaloo, Caveat, Geist, Geist_Mono } from "next/font/google";
+import { Boogaloo, Caveat, Geist, Geist_Mono, The_Girl_Next_Door } from "next/font/google";
 import { JournalShell } from "@/components/JournalShell";
 import "./globals.css";
 
@@ -24,6 +24,12 @@ const gluten = Boogaloo({
   subsets: ["latin"],
   weight: "400",
 });
+
+const girlNextDoor = The_Girl_Next_Door({
+  variable: "--font-tgnd",
+  subsets: ["latin"],
+  weight: "400",
+});
 export const metadata: Metadata = {
   title: "Busy Bunny",
   description: "A bunny-themed gamified todo list.",
@@ -38,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${gluten.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${gluten.variable} ${girlNextDoor.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <JournalShell>{children}</JournalShell>
