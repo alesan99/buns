@@ -25,8 +25,9 @@ const gluten = Boogaloo({
   weight: "400",
 });
 export const metadata: Metadata = {
-  title: "Bunny Bulletin",
+  title: "Busy Bunny",
   description: "A bunny-themed gamified todo list.",
+  icons: { icon: "/bunny.png" },
 };
 
 export default function RootLayout({
