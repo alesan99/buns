@@ -93,13 +93,30 @@ export function populateLevelLayoutRandom(
   const warpFreqBottom = 0.2;
   const warpFreqTop    = 1;
 
-  const topOccupiedRow = new Array(width).fill(floorRow);
+  // How many rows back gap enforcement looks. Set this to roughly your
+  // viewport height in tiles — entries older than this are expired so the
+  // Map never grows unbounded over an infinite level.
+  const gapWindow = 20;
+
+  // Sliding window: Map instead of a fixed array so entries can be expired.
+  const topOccupiedRow = new Map<number, number>();
+  const getTop = (col: number): number => topOccupiedRow.get(col) ?? floorRow;
 
   let row = floorRow - 3;
   let passIndex = 0;
   let prevCenterCol = -1;
 
   while (row > 2) {
+    // ── Expire stale entries ───────────────────────────────────────────────
+    // Any column whose recorded tile is more than gapWindow rows below the
+    // current generation point can't affect gap enforcement anymore, so
+    // delete it to keep the Map from growing forever.
+    for (const [col, occupiedRow] of topOccupiedRow) {
+      if (occupiedRow > row + gapWindow) {
+        topOccupiedRow.delete(col);
+      }
+    }
+
     const noiseX = passIndex * 1.8;
     let centerCol = Math.round(fbm(noiseX, seed) * (width - 1));
 
@@ -119,16 +136,12 @@ export function populateLevelLayoutRandom(
     const heightT = 1 - (row / floorRow);
 
     // All per-pass parameters scale with heightT.
-    const hSigma         = lerp(hSigmaBottom,         hSigmaTop,         heightT);
-    const hThreshold = lerp(
-      hThresholdBottom,
-      hThresholdTop - 0.05, // allow more columns at top
-      heightT
-    );
+    const hSigma         = lerp(hSigmaBottom,       hSigmaTop,       heightT);
+    const hThreshold     = lerp(hThresholdBottom,   hThresholdTop - 0.05, heightT);
     const maxThickness   = Math.round(lerp(maxThicknessBottom, maxThicknessTop, heightT));
-    const vSigma         = lerp(vSigmaBottom, vSigmaTop,         heightT);
-    const surfaceWarpAmp = lerp(warpAmpBottom,         warpAmpTop,        heightT);
-    const warpFreq       = lerp(warpFreqBottom,        warpFreqTop,       heightT);
+    const vSigma         = lerp(vSigmaBottom,       vSigmaTop,       heightT);
+    const surfaceWarpAmp = lerp(warpAmpBottom,       warpAmpTop,      heightT);
+    const warpFreq       = lerp(warpFreqBottom,      warpFreqTop,     heightT);
 
     let collectibleCol = centerCol;
     let collectibleRow = row - 1;
@@ -139,12 +152,13 @@ export function populateLevelLayoutRandom(
       const hWeight = gaussian(warpedCol - centerCol, hSigma);
       if (hWeight < hThreshold) continue;
 
-      const thicknessCurve = Math.pow(hWeight, 0.5); 
-      const centerBias = Math.pow(hWeight, 1.5); // sharper peak
+      const thicknessCurve = Math.pow(hWeight, 0.5);
+      const centerBias = Math.pow(hWeight, 1.5);
       const colThickness = Math.max(
-      1,
-      Math.round(maxThickness * thicknessCurve + maxThickness * 0.3 * centerBias)
+        1,
+        Math.round(maxThickness * thicknessCurve + maxThickness * 0.3 * centerBias),
       );
+
       const warpNoise = fbm(col * warpFreq, seed + passIndex * 17);
       const warpOffset = Math.round((warpNoise - 0.5) * 2 * surfaceWarpAmp);
       const surfaceRow = row + warpOffset;
@@ -157,19 +171,19 @@ export function populateLevelLayoutRandom(
         if (vWeight < 0.2) continue;
 
         // ── Gap enforcement ──────────────────────────────────────────────
-        if (tileRow >= topOccupiedRow[col] - 1) continue;
+        if (tileRow >= getTop(col) - 1) continue;
 
         const tile = randInt(rng, 1, 3);
         layout.setTile(tileRow, col, tile);
 
-        if (tileRow < topOccupiedRow[col]) {
-          topOccupiedRow[col] = tileRow;
+        if (tileRow < getTop(col)) {
+          topOccupiedRow.set(col, tileRow);
         }
       }
 
       if (col === centerCol) {
-        const warp = Math.round((fbm(col * warpFreq, seed + passIndex * 17) - 0.5) * 2 * surfaceWarpAmp);
-        collectibleRow = row + warp - 1;
+        const colWarp = Math.round((fbm(col * warpFreq, seed + passIndex * 17) - 0.5) * 2 * surfaceWarpAmp);
+        collectibleRow = row + colWarp - 1;
       }
     }
 
