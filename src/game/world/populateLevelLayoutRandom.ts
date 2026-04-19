@@ -89,7 +89,7 @@ export function populateLevelLayoutRandom(
   const vSigmaBottom = 5;
   const vSigmaTop    = 2;
 
-  const collectibleChance = 0.4;
+  const collectibleChance = 0.3;
 
   const warpAmpBottom = 4;
   const warpAmpTop    = 5;

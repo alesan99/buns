@@ -19,8 +19,8 @@ function pickType(): CollectibleType {
 function getTextureConfig(type: CollectibleType): { key: string; frame?: number; anim?: string } {
   switch (type) {
     case "coffee": return { key: "coffee", anim: "coffee-idle" };
-    case "energy": return { key: "beverages", frame: 1 };
-    case "tea":    return { key: "beverages", frame: 2 };
+    case "energy": return { key: "beverages", frame: 0 };
+    case "tea":    return { key: "beverages", frame: 1 };
   }
 }
 

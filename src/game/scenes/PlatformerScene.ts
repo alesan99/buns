@@ -54,6 +54,10 @@ export function createPlatformerScene(
         frameWidth: 64,
         frameHeight: 64,
       });
+      this.load.spritesheet("beverages", "beverages.png", {
+        frameWidth: 64,
+        frameHeight: 64,
+      });
       this.load.spritesheet("tiles", "/tiles.png", {
         frameWidth: 64,
         frameHeight: 64,
