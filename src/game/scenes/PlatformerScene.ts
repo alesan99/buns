@@ -11,6 +11,7 @@ import { TiledWorld } from "@/game/world/TiledWorld";
 import { createPrimitiveTextures } from "@/game/world/createPrimitiveTextures";
 import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRandom";
 import { readOverdueCountFromStorage } from "@/lib/overdue";
+import { USER_STATS_CHANGED_EVENT, PLAYS_REMAINING_KEY, MAX_PLAYS } from "@/hooks/useUserStats";
 
 export function createPlatformerScene(
   Phaser: typeof import("phaser"),
@@ -45,6 +46,14 @@ export function createPlatformerScene(
     background.setScale((baseScale * 2) / zoom);
     background.setScrollFactor(0);
     background.setDepth(-100);
+  };
+
+  const updatePlayerControls = () => {
+    if (!player) return;
+    const raw = typeof window !== "undefined" ? localStorage.getItem(PLAYS_REMAINING_KEY) : null;
+    const playsRemaining = raw ? parseInt(raw, 10) : 0;
+    const hasPlays = Math.max(0, Math.min(MAX_PLAYS, playsRemaining)) > 0;
+    player.setControlsEnabled(hasPlays);
   };
 
   return {
@@ -184,8 +193,12 @@ export function createPlatformerScene(
 
       this.scale.on("resize", handleResize);
 
+      // Listen for play count changes and update player controls
+      window.addEventListener(USER_STATS_CHANGED_EVENT, updatePlayerControls);
+
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.scale.off("resize", handleResize);
+        window.removeEventListener(USER_STATS_CHANGED_EVENT, updatePlayerControls);
       });
     },
     update(this: Phaser.Scene) {

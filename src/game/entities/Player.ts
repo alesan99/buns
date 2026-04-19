@@ -19,7 +19,7 @@ export class Player {
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;
   private readonly baseVisualScale = 0.20;
-  private readonly controlsEnabled: boolean;
+  private controlsEnabled: boolean;
   private walkBobTime = 0;
   private previousJumpHeld = false;
   private previousGodModeToggleHeld = false;
@@ -62,6 +62,10 @@ export class Player {
     this.keyA = scene.input.keyboard?.addKey("A") ?? null;
     this.keyD = scene.input.keyboard?.addKey("D") ?? null;
     this.godModeKey = scene.input.keyboard?.addKey("ZERO") ?? null;
+  }
+
+  setControlsEnabled(enabled: boolean) {
+    this.controlsEnabled = enabled;
   }
 
   private triggerExtraJumpBoost() {

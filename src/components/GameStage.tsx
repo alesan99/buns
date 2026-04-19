@@ -18,6 +18,11 @@ export function GameStage() {
   const hasPlays = playsRemaining > 0;
   const controlsEnabledRef = useRef(hasPlays);
 
+  // Update controlsEnabled whenever plays change
+  useEffect(() => {
+    controlsEnabledRef.current = hasPlays;
+  }, [hasPlays]);
+
   useEffect(() => {
     const mountNode = mountRef.current;
     if (!mountNode) return;
