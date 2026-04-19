@@ -1,11 +1,20 @@
 import type * as Phaser from "phaser";
 
 export class TileObject {
+  readonly row: number;
   readonly sprite: Phaser.Types.Physics.Arcade.ImageWithStaticBody;
   private readonly outlineVisual: Phaser.GameObjects.Image;
   private readonly visual: Phaser.GameObjects.Image;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, tileSize: number, tileId: number) {
+  constructor(
+    scene: Phaser.Scene,
+    row: number,
+    x: number,
+    y: number,
+    tileSize: number,
+    tileId: number,
+  ) {
+    this.row = row;
     const frameIndex = Math.max(0, Math.min(5, tileId - 1));
     this.sprite = scene.physics.add.staticImage(x, y, "tiles", frameIndex);
     this.sprite.setDisplaySize(tileSize, tileSize);
@@ -25,5 +34,11 @@ export class TileObject {
   setVisible(isVisible: boolean) {
     this.outlineVisual.setVisible(isVisible);
     this.visual.setVisible(isVisible);
+  }
+
+  destroy() {
+    this.sprite.destroy();
+    this.outlineVisual.destroy();
+    this.visual.destroy();
   }
 }

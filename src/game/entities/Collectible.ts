@@ -1,10 +1,12 @@
 import type * as Phaser from "phaser";
 
 export class Collectible {
+  readonly row: number;
   readonly sprite: Phaser.Physics.Arcade.Sprite;
   private readonly visual: Phaser.GameObjects.Sprite;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Phaser.Scene, row: number, x: number, y: number) {
+    this.row = row;
     this.sprite = scene.physics.add.sprite(x, y, "coffee");
     this.sprite.setImmovable(true);
     this.sprite.setVisible(false);
@@ -17,7 +19,8 @@ export class Collectible {
     }
 
     this.visual = scene.add.sprite(x, y, "coffee");
-	this.visual.setDepth(2);
+    this.visual.setDepth(2);
+    this.visual.play("coffee-idle");
 
     scene.tweens.add({
       targets: this.visual,
@@ -30,6 +33,10 @@ export class Collectible {
   }
 
   collect() {
+    this.destroy();
+  }
+
+  destroy() {
     this.visual.destroy();
     this.sprite.disableBody(true, true);
   }

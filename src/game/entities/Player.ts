@@ -5,7 +5,7 @@ export class Player {
   private readonly visual: Phaser.GameObjects.Sprite;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   private readonly speed = 260;
-  private readonly jumpVelocity = -1230;
+  private readonly jumpVelocity = -1240;
   private readonly jumpCutVelocity = -350;
   private readonly visualOffsetX = 0;
   private readonly visualOffsetY = -30;

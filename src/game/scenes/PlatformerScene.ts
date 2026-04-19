@@ -11,10 +11,23 @@ import { TiledWorld } from "@/game/world/TiledWorld";
 import { createPrimitiveTextures } from "@/game/world/createPrimitiveTextures";
 import { populateLevelLayoutRandom } from "@/game/world/populateLevelLayoutRandom";
 
-export function createPlatformerScene(Phaser: typeof import("phaser")) {
+export function createPlatformerScene(
+  Phaser: typeof import("phaser"),
+  onDeath?: () => void,
+) {
   let player: Player;
   let world: TiledWorld;
   let background: Phaser.GameObjects.Image | undefined;
+  let updateCamera: (() => void) | undefined;
+  let hasDied = false;
+  let deathChecksArmed = false;
+  let initialCameraScrollY = 0;
+
+  const triggerDeath = () => {
+    if (hasDied) return;
+    hasDied = true;
+    onDeath?.();
+  };
 
   const resizeBackground = (scene: Phaser.Scene) => {
     if (!background) return;
@@ -35,7 +48,10 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
     key: "PlatformerScene",
     preload(this: Phaser.Scene) {
       this.load.image("background", "/background.png");
-      this.load.image("coffee", "/coffee.png");
+      this.load.spritesheet("coffee", "/coffee.png", {
+        frameWidth: 64,
+        frameHeight: 64,
+      });
       this.load.spritesheet("tiles", "/tiles.png", {
         frameWidth: 64,
         frameHeight: 64,
@@ -74,6 +90,15 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         });
       }
 
+      if (!this.anims.exists("coffee-idle")) {
+        this.anims.create({
+          key: "coffee-idle",
+          frames: this.anims.generateFrameNumbers("coffee", { start: 0, end: 1 }),
+          frameRate: 5,
+          repeat: -1,
+        });
+      }
+
       const levelLayout = populateLevelLayoutRandom(createBaseLevelLayout());
       world = new TiledWorld(this, levelLayout, TILE_SIZE);
       setupPhysicsWorld(this, world.worldWidthPx, world.worldHeightPx);
@@ -97,14 +122,17 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
         },
       );
 
-      setupCamera(
+      updateCamera = setupCamera(
         this,
         player.sprite,
         world.worldWidthPx,
         world.worldHeightPx,
         TILE_SIZE,
         CAMERA_VISIBLE_TILES_ACROSS,
+        () => world.worldTopY,
+        () => world.worldBottomY,
       );
+      initialCameraScrollY = this.cameras.main.scrollY;
 
       // Re-apply after camera zoom is configured.
       resizeBackground(this);
@@ -119,6 +147,24 @@ export function createPlatformerScene(Phaser: typeof import("phaser")) {
     },
     update(this: Phaser.Scene) {
       player?.update();
+      world?.updateStreaming(this.cameras.main);
+      updateCamera?.();
+
+      if (!deathChecksArmed) {
+        deathChecksArmed =
+          this.cameras.main.scrollY < initialCameraScrollY - TILE_SIZE;
+      }
+
+      if (player && world && !hasDied) {
+        const body = player.sprite.body as Phaser.Physics.Arcade.Body | null;
+        const graceZone = 50;
+        const cameraBottom = this.cameras.main.worldView.bottom;
+        if (deathChecksArmed && body && body.top-graceZone > cameraBottom) {
+          triggerDeath();
+          return;
+        }
+      }
+
       world?.updateTileVisibility(this.cameras.main);
     },
   };

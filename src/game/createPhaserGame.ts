@@ -3,8 +3,11 @@ import { createPlatformerScene } from "@/game/scenes/PlatformerScene";
 export function createPhaserGame(
   Phaser: typeof import("phaser"),
   mountNode: HTMLElement,
+  options?: {
+    onDeath?: () => void;
+  },
 ) {
-  const scene = createPlatformerScene(Phaser);
+  const scene = createPlatformerScene(Phaser, options?.onDeath);
 
   return new Phaser.Game({
     type: Phaser.AUTO,

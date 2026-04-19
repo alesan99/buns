@@ -7,6 +7,7 @@ import { useFlipTo, useIsFlipping } from "./JournalShell";
 
 export function GameStage() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const deathHandledRef = useRef(false);
   const flipTo = useFlipTo();
   const isFlipping = useIsFlipping();
 
@@ -16,20 +17,30 @@ export function GameStage() {
 
     let cancelled = false;
     let game: import("phaser").Game | undefined;
+    deathHandledRef.current = false;
+
+    const handleDeath = () => {
+      if (deathHandledRef.current) return;
+      deathHandledRef.current = true;
+      game?.destroy(true);
+      game = undefined;
+      flipTo("/");
+    };
 
     void import("phaser").then((Phaser) => {
       if (cancelled || !mountNode.isConnected) return;
       mountNode.innerHTML = "";
 
-      game = createPhaserGame(Phaser, mountNode);
+      game = createPhaserGame(Phaser, mountNode, { onDeath: handleDeath });
     });
 
     return () => {
       cancelled = true;
+      deathHandledRef.current = false;
       game?.destroy(true);
       mountNode.innerHTML = "";
     };
-  }, []);
+  }, [flipTo]);
 
   return (
     <div className="relative h-full min-h-0">
